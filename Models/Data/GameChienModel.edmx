@@ -1,0 +1,1574 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="GameChienModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="tblBank">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="BankName" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="ShortName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Bin" Type="int" />
+          <Property Name="OrderNumber" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tblBankAccountByPlayer">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="PlayerId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="BankId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="BankAccountNumber" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="BankFullName" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="CreatedTime" Type="datetime" Nullable="false" />
+          <Property Name="isActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'GameChien.dbo.tblConfig' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="tblConfig">
+          <Key>
+            <PropertyRef Name="MinBet" />
+          </Key>
+          <Property Name="MinBet" Type="bigint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tblConfigTransactionByMobileApp">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Type" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="From" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="isActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tblCreditHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="PlayerId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Amount" Type="bigint" Nullable="false" />
+          <Property Name="DepositId" Type="uniqueidentifier" />
+          <Property Name="WithdrawId" Type="uniqueidentifier" />
+          <Property Name="Description" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="CreatedTime" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tblDeposit">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="PlayerId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Amount" Type="bigint" Nullable="false" />
+          <Property Name="AttachFile" Type="nvarchar(max)" />
+          <Property Name="Status" Type="bit" />
+          <Property Name="TransactionId" Type="uniqueidentifier" />
+          <Property Name="CreatedTime" Type="datetime" Nullable="false" />
+          <Property Name="UpdatedBy" Type="uniqueidentifier" />
+          <Property Name="UpdatedTime" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tblKickOutRoom">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="RoomId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="PlayerId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="isActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tblLogOfMobileApp">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Source" Type="nvarchar" MaxLength="50" />
+          <Property Name="Data" Type="nvarchar(max)" />
+          <Property Name="CreatedTime" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tblNotification">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Type" Type="varchar" MaxLength="250" />
+          <Property Name="DeviceName" Type="nvarchar(max)" />
+          <Property Name="From" Type="nvarchar(max)" />
+          <Property Name="Data" Type="nvarchar(max)" />
+          <Property Name="Data2" Type="nvarchar(max)" />
+          <Property Name="Executed" Type="bit" Nullable="false" />
+          <Property Name="CreatedTime" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tblPermission">
+          <Key>
+            <PropertyRef Name="Name" />
+          </Key>
+          <Property Name="Name" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="Description" Type="nvarchar" MaxLength="250" />
+        </EntityType>
+        <EntityType Name="tblPlayer">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="AccountName" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="Password" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="FullName" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="PhoneNumber" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="GameAccount" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="Email" Type="varchar" MaxLength="250" />
+          <Property Name="Avatar" Type="varchar" MaxLength="250" />
+          <Property Name="Gender" Type="int" />
+          <Property Name="Credit" Type="bigint" Nullable="false" />
+          <Property Name="GameLevel" Type="int" Nullable="false" />
+          <Property Name="PercentOfLevelUp" Type="int" Nullable="false" />
+          <Property Name="LastIPAddress" Type="varchar" MaxLength="250" />
+          <Property Name="LastTimeModified" Type="datetime" />
+          <Property Name="CreatedTime" Type="datetime" Nullable="false" />
+          <Property Name="Status" Type="int" Nullable="false" />
+          <Property Name="isVerifiedGameAccount" Type="bit" Nullable="false" />
+          <Property Name="isBlock" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tblPlayer_Room">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="PlayerId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="RoomId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="isOwner" Type="bit" Nullable="false" />
+          <Property Name="isTeam" Type="bit" Nullable="false" />
+          <Property Name="TimeJoin" Type="datetime" Nullable="false" />
+          <Property Name="isReady" Type="bit" Nullable="false" />
+          <Property Name="isVoteWin" Type="bit" />
+          <Property Name="EndTime" Type="datetime" />
+          <Property Name="AttachFile" Type="ntext" />
+        </EntityType>
+        <EntityType Name="tblRelationship">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="FromPlayer" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="ToPlayer" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="isFriend" Type="bit" />
+          <Property Name="isBlock" Type="bit" Nullable="false" />
+          <Property Name="CreatedTime" Type="datetime" Nullable="false" />
+          <Property Name="LastUpdateTime" Type="datetime" />
+          <Property Name="isActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tblRole">
+          <Key>
+            <PropertyRef Name="Name" />
+          </Key>
+          <Property Name="Name" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="Level" Type="int" Nullable="false" />
+          <Property Name="Description" Type="nvarchar" MaxLength="250" />
+        </EntityType>
+        <EntityType Name="tblRole_Permission">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="RoleName" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="PermissionName" Type="varchar" MaxLength="250" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tblRoom">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Code" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="RoomTypeId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="AmountBet" Type="bigint" Nullable="false" />
+          <Property Name="RoomFeeId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Password" Type="varchar" MaxLength="6" />
+          <Property Name="TotalNumOfPlayer" Type="int" Nullable="false" />
+          <Property Name="NumOfJoined" Type="int" Nullable="false" />
+          <Property Name="CreatedTime" Type="datetime" Nullable="false" />
+          <Property Name="CreatedByPlayerId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="StartTime" Type="datetime" />
+          <Property Name="EndTime" Type="datetime" />
+          <Property Name="isTeamWin" Type="bit" />
+          <Property Name="isActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tblRoomFee">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="FeeValue" Type="int" Nullable="false" />
+          <Property Name="isPercent" Type="bit" Nullable="false" />
+          <Property Name="CreatedTime" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tblRoomType">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="TotalNumOfPlayer" Type="int" Nullable="false" />
+          <Property Name="CreatedTime" Type="datetime" Nullable="false" />
+          <Property Name="isActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tblTransaction">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="GetBy" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Device" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="BankName" Type="varchar" MaxLength="250" />
+          <Property Name="TransactionDate" Type="varchar" MaxLength="250" />
+          <Property Name="TransactionTime" Type="varchar" MaxLength="250" />
+          <Property Name="CD" Type="varchar" MaxLength="1" />
+          <Property Name="Amount" Type="bigint" Nullable="false" />
+          <Property Name="Description" Type="nvarchar" MaxLength="250" />
+          <Property Name="PhoneNumber" Type="varchar" MaxLength="10" />
+          <Property Name="CreatedTime" Type="datetime" Nullable="false" />
+          <Property Name="Status" Type="bit" />
+          <Property Name="LastUpdateBy" Type="uniqueidentifier" />
+          <Property Name="LastUpdateTime" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tblUser">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="UserName" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="PassWord" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="FullName" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="RoleName" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="CreatedTime" Type="datetime" Nullable="false" />
+          <Property Name="isActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tblUser_Permission">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="UserId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="PermissionName" Type="varchar" MaxLength="250" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tblWithdraw">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="BankAccountByPlayerId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Amount" Type="bigint" Nullable="false" />
+          <Property Name="Status" Type="bit" />
+          <Property Name="CreatedTime" Type="datetime" Nullable="false" />
+          <Property Name="UpdatedBy" Type="uniqueidentifier" />
+          <Property Name="UpdatedTime" Type="datetime" />
+        </EntityType>
+        <Association Name="FK_tblBankAccountByPlayer_tblBank">
+          <End Role="tblBank" Type="Self.tblBank" Multiplicity="1" />
+          <End Role="tblBankAccountByPlayer" Type="Self.tblBankAccountByPlayer" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblBank">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblBankAccountByPlayer">
+              <PropertyRef Name="BankId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblBankAccountByPlayer_tblPlayer">
+          <End Role="tblPlayer" Type="Self.tblPlayer" Multiplicity="1" />
+          <End Role="tblBankAccountByPlayer" Type="Self.tblBankAccountByPlayer" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblBankAccountByPlayer">
+              <PropertyRef Name="PlayerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblKickOutRoom_tblPlayer">
+          <End Role="tblPlayer" Type="Self.tblPlayer" Multiplicity="1" />
+          <End Role="tblKickOutRoom" Type="Self.tblKickOutRoom" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblKickOutRoom">
+              <PropertyRef Name="PlayerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblPayin_tblPlayer">
+          <End Role="tblPlayer" Type="Self.tblPlayer" Multiplicity="1" />
+          <End Role="tblDeposit" Type="Self.tblDeposit" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblDeposit">
+              <PropertyRef Name="PlayerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblPayin_tblTransaction">
+          <End Role="tblTransaction" Type="Self.tblTransaction" Multiplicity="0..1" />
+          <End Role="tblDeposit" Type="Self.tblDeposit" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblTransaction">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblDeposit">
+              <PropertyRef Name="TransactionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblPlayer_Room_tblPlayer">
+          <End Role="tblPlayer" Type="Self.tblPlayer" Multiplicity="1" />
+          <End Role="tblPlayer_Room" Type="Self.tblPlayer_Room" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblPlayer_Room">
+              <PropertyRef Name="PlayerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblPlayer_Room_tblRoom">
+          <End Role="tblRoom" Type="Self.tblRoom" Multiplicity="1" />
+          <End Role="tblPlayer_Room" Type="Self.tblPlayer_Room" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblRoom">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblPlayer_Room">
+              <PropertyRef Name="RoomId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblRelationship_tblPlayer">
+          <End Role="tblPlayer" Type="Self.tblPlayer" Multiplicity="1" />
+          <End Role="tblRelationship" Type="Self.tblRelationship" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblRelationship">
+              <PropertyRef Name="FromPlayer" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblRelationship_tblPlayer1">
+          <End Role="tblPlayer" Type="Self.tblPlayer" Multiplicity="1" />
+          <End Role="tblRelationship" Type="Self.tblRelationship" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblRelationship">
+              <PropertyRef Name="ToPlayer" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblRole_Permission_tblPermission">
+          <End Role="tblPermission" Type="Self.tblPermission" Multiplicity="1" />
+          <End Role="tblRole_Permission" Type="Self.tblRole_Permission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPermission">
+              <PropertyRef Name="Name" />
+            </Principal>
+            <Dependent Role="tblRole_Permission">
+              <PropertyRef Name="PermissionName" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblRole_Permission_tblRole">
+          <End Role="tblRole" Type="Self.tblRole" Multiplicity="1" />
+          <End Role="tblRole_Permission" Type="Self.tblRole_Permission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblRole">
+              <PropertyRef Name="Name" />
+            </Principal>
+            <Dependent Role="tblRole_Permission">
+              <PropertyRef Name="RoleName" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblRoom_tblPlayer">
+          <End Role="tblPlayer" Type="Self.tblPlayer" Multiplicity="1" />
+          <End Role="tblRoom" Type="Self.tblRoom" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblRoom">
+              <PropertyRef Name="CreatedByPlayerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblRoom_tblRoomFee">
+          <End Role="tblRoomFee" Type="Self.tblRoomFee" Multiplicity="1" />
+          <End Role="tblRoom" Type="Self.tblRoom" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblRoomFee">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblRoom">
+              <PropertyRef Name="RoomFeeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblRoom_tblRoomType">
+          <End Role="tblRoomType" Type="Self.tblRoomType" Multiplicity="1" />
+          <End Role="tblRoom" Type="Self.tblRoom" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblRoomType">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblRoom">
+              <PropertyRef Name="RoomTypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblTransaction_tblUser">
+          <End Role="tblUser" Type="Self.tblUser" Multiplicity="0..1" />
+          <End Role="tblTransaction" Type="Self.tblTransaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblTransaction">
+              <PropertyRef Name="LastUpdateBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblUser_Permission_tblPermission">
+          <End Role="tblPermission" Type="Self.tblPermission" Multiplicity="1" />
+          <End Role="tblUser_Permission" Type="Self.tblUser_Permission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPermission">
+              <PropertyRef Name="Name" />
+            </Principal>
+            <Dependent Role="tblUser_Permission">
+              <PropertyRef Name="PermissionName" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblUser_Permission_tblUser">
+          <End Role="tblUser" Type="Self.tblUser" Multiplicity="1" />
+          <End Role="tblUser_Permission" Type="Self.tblUser_Permission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblUser_Permission">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblUser_tblRole">
+          <End Role="tblRole" Type="Self.tblRole" Multiplicity="1" />
+          <End Role="tblUser" Type="Self.tblUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblRole">
+              <PropertyRef Name="Name" />
+            </Principal>
+            <Dependent Role="tblUser">
+              <PropertyRef Name="RoleName" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblWithdraw_tblBankAccountByPlayer">
+          <End Role="tblBankAccountByPlayer" Type="Self.tblBankAccountByPlayer" Multiplicity="1" />
+          <End Role="tblWithdraw" Type="Self.tblWithdraw" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblBankAccountByPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblWithdraw">
+              <PropertyRef Name="BankAccountByPlayerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblWithdraw_tblUser">
+          <End Role="tblUser" Type="Self.tblUser" Multiplicity="0..1" />
+          <End Role="tblWithdraw" Type="Self.tblWithdraw" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblWithdraw">
+              <PropertyRef Name="UpdatedBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="GameChienModelStoreContainer">
+          <EntitySet Name="tblBank" EntityType="Self.tblBank" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblBankAccountByPlayer" EntityType="Self.tblBankAccountByPlayer" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblConfigTransactionByMobileApp" EntityType="Self.tblConfigTransactionByMobileApp" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblCreditHistory" EntityType="Self.tblCreditHistory" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblDeposit" EntityType="Self.tblDeposit" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblKickOutRoom" EntityType="Self.tblKickOutRoom" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblLogOfMobileApp" EntityType="Self.tblLogOfMobileApp" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblNotification" EntityType="Self.tblNotification" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblPermission" EntityType="Self.tblPermission" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblPlayer" EntityType="Self.tblPlayer" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblPlayer_Room" EntityType="Self.tblPlayer_Room" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblRelationship" EntityType="Self.tblRelationship" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblRole" EntityType="Self.tblRole" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblRole_Permission" EntityType="Self.tblRole_Permission" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblRoom" EntityType="Self.tblRoom" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblRoomFee" EntityType="Self.tblRoomFee" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblRoomType" EntityType="Self.tblRoomType" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblTransaction" EntityType="Self.tblTransaction" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblUser" EntityType="Self.tblUser" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblUser_Permission" EntityType="Self.tblUser_Permission" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblWithdraw" EntityType="Self.tblWithdraw" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tblConfig" EntityType="Self.tblConfig" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [tblConfig].[MinBet] AS [MinBet]
+    FROM [dbo].[tblConfig] AS [tblConfig]</DefiningQuery>
+          </EntitySet>
+          <AssociationSet Name="FK_tblBankAccountByPlayer_tblBank" Association="Self.FK_tblBankAccountByPlayer_tblBank">
+            <End Role="tblBank" EntitySet="tblBank" />
+            <End Role="tblBankAccountByPlayer" EntitySet="tblBankAccountByPlayer" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblBankAccountByPlayer_tblPlayer" Association="Self.FK_tblBankAccountByPlayer_tblPlayer">
+            <End Role="tblPlayer" EntitySet="tblPlayer" />
+            <End Role="tblBankAccountByPlayer" EntitySet="tblBankAccountByPlayer" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblKickOutRoom_tblPlayer" Association="Self.FK_tblKickOutRoom_tblPlayer">
+            <End Role="tblPlayer" EntitySet="tblPlayer" />
+            <End Role="tblKickOutRoom" EntitySet="tblKickOutRoom" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblPayin_tblPlayer" Association="Self.FK_tblPayin_tblPlayer">
+            <End Role="tblPlayer" EntitySet="tblPlayer" />
+            <End Role="tblDeposit" EntitySet="tblDeposit" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblPayin_tblTransaction" Association="Self.FK_tblPayin_tblTransaction">
+            <End Role="tblTransaction" EntitySet="tblTransaction" />
+            <End Role="tblDeposit" EntitySet="tblDeposit" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblPlayer_Room_tblPlayer" Association="Self.FK_tblPlayer_Room_tblPlayer">
+            <End Role="tblPlayer" EntitySet="tblPlayer" />
+            <End Role="tblPlayer_Room" EntitySet="tblPlayer_Room" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblPlayer_Room_tblRoom" Association="Self.FK_tblPlayer_Room_tblRoom">
+            <End Role="tblRoom" EntitySet="tblRoom" />
+            <End Role="tblPlayer_Room" EntitySet="tblPlayer_Room" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblRelationship_tblPlayer" Association="Self.FK_tblRelationship_tblPlayer">
+            <End Role="tblPlayer" EntitySet="tblPlayer" />
+            <End Role="tblRelationship" EntitySet="tblRelationship" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblRelationship_tblPlayer1" Association="Self.FK_tblRelationship_tblPlayer1">
+            <End Role="tblPlayer" EntitySet="tblPlayer" />
+            <End Role="tblRelationship" EntitySet="tblRelationship" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblRole_Permission_tblPermission" Association="Self.FK_tblRole_Permission_tblPermission">
+            <End Role="tblPermission" EntitySet="tblPermission" />
+            <End Role="tblRole_Permission" EntitySet="tblRole_Permission" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblRole_Permission_tblRole" Association="Self.FK_tblRole_Permission_tblRole">
+            <End Role="tblRole" EntitySet="tblRole" />
+            <End Role="tblRole_Permission" EntitySet="tblRole_Permission" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblRoom_tblPlayer" Association="Self.FK_tblRoom_tblPlayer">
+            <End Role="tblPlayer" EntitySet="tblPlayer" />
+            <End Role="tblRoom" EntitySet="tblRoom" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblRoom_tblRoomFee" Association="Self.FK_tblRoom_tblRoomFee">
+            <End Role="tblRoomFee" EntitySet="tblRoomFee" />
+            <End Role="tblRoom" EntitySet="tblRoom" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblRoom_tblRoomType" Association="Self.FK_tblRoom_tblRoomType">
+            <End Role="tblRoomType" EntitySet="tblRoomType" />
+            <End Role="tblRoom" EntitySet="tblRoom" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblTransaction_tblUser" Association="Self.FK_tblTransaction_tblUser">
+            <End Role="tblUser" EntitySet="tblUser" />
+            <End Role="tblTransaction" EntitySet="tblTransaction" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblUser_Permission_tblPermission" Association="Self.FK_tblUser_Permission_tblPermission">
+            <End Role="tblPermission" EntitySet="tblPermission" />
+            <End Role="tblUser_Permission" EntitySet="tblUser_Permission" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblUser_Permission_tblUser" Association="Self.FK_tblUser_Permission_tblUser">
+            <End Role="tblUser" EntitySet="tblUser" />
+            <End Role="tblUser_Permission" EntitySet="tblUser_Permission" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblUser_tblRole" Association="Self.FK_tblUser_tblRole">
+            <End Role="tblRole" EntitySet="tblRole" />
+            <End Role="tblUser" EntitySet="tblUser" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblWithdraw_tblBankAccountByPlayer" Association="Self.FK_tblWithdraw_tblBankAccountByPlayer">
+            <End Role="tblBankAccountByPlayer" EntitySet="tblBankAccountByPlayer" />
+            <End Role="tblWithdraw" EntitySet="tblWithdraw" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblWithdraw_tblUser" Association="Self.FK_tblWithdraw_tblUser">
+            <End Role="tblUser" EntitySet="tblUser" />
+            <End Role="tblWithdraw" EntitySet="tblWithdraw" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="GameChienModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="GameChienEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="tblBanks" EntityType="GameChienModel.tblBank" />
+          <EntitySet Name="tblBankAccountByPlayers" EntityType="GameChienModel.tblBankAccountByPlayer" />
+          <EntitySet Name="tblConfigTransactionByMobileApps" EntityType="GameChienModel.tblConfigTransactionByMobileApp" />
+          <EntitySet Name="tblCreditHistories" EntityType="GameChienModel.tblCreditHistory" />
+          <EntitySet Name="tblDeposits" EntityType="GameChienModel.tblDeposit" />
+          <EntitySet Name="tblKickOutRooms" EntityType="GameChienModel.tblKickOutRoom" />
+          <EntitySet Name="tblLogOfMobileApps" EntityType="GameChienModel.tblLogOfMobileApp" />
+          <EntitySet Name="tblNotifications" EntityType="GameChienModel.tblNotification" />
+          <EntitySet Name="tblPermissions" EntityType="GameChienModel.tblPermission" />
+          <EntitySet Name="tblPlayers" EntityType="GameChienModel.tblPlayer" />
+          <EntitySet Name="tblPlayer_Room" EntityType="GameChienModel.tblPlayer_Room" />
+          <EntitySet Name="tblRelationships" EntityType="GameChienModel.tblRelationship" />
+          <EntitySet Name="tblRoles" EntityType="GameChienModel.tblRole" />
+          <EntitySet Name="tblRole_Permission" EntityType="GameChienModel.tblRole_Permission" />
+          <EntitySet Name="tblRooms" EntityType="GameChienModel.tblRoom" />
+          <EntitySet Name="tblRoomFees" EntityType="GameChienModel.tblRoomFee" />
+          <EntitySet Name="tblRoomTypes" EntityType="GameChienModel.tblRoomType" />
+          <EntitySet Name="tblTransactions" EntityType="GameChienModel.tblTransaction" />
+          <EntitySet Name="tblUsers" EntityType="GameChienModel.tblUser" />
+          <EntitySet Name="tblUser_Permission" EntityType="GameChienModel.tblUser_Permission" />
+          <EntitySet Name="tblWithdraws" EntityType="GameChienModel.tblWithdraw" />
+          <EntitySet Name="tblConfigs" EntityType="GameChienModel.tblConfig" />
+          <AssociationSet Name="FK_tblBankAccountByPlayer_tblBank" Association="GameChienModel.FK_tblBankAccountByPlayer_tblBank">
+            <End Role="tblBank" EntitySet="tblBanks" />
+            <End Role="tblBankAccountByPlayer" EntitySet="tblBankAccountByPlayers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblBankAccountByPlayer_tblPlayer" Association="GameChienModel.FK_tblBankAccountByPlayer_tblPlayer">
+            <End Role="tblPlayer" EntitySet="tblPlayers" />
+            <End Role="tblBankAccountByPlayer" EntitySet="tblBankAccountByPlayers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblWithdraw_tblBankAccountByPlayer" Association="GameChienModel.FK_tblWithdraw_tblBankAccountByPlayer">
+            <End Role="tblBankAccountByPlayer" EntitySet="tblBankAccountByPlayers" />
+            <End Role="tblWithdraw" EntitySet="tblWithdraws" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblPayin_tblPlayer" Association="GameChienModel.FK_tblPayin_tblPlayer">
+            <End Role="tblPlayer" EntitySet="tblPlayers" />
+            <End Role="tblDeposit" EntitySet="tblDeposits" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblPayin_tblTransaction" Association="GameChienModel.FK_tblPayin_tblTransaction">
+            <End Role="tblTransaction" EntitySet="tblTransactions" />
+            <End Role="tblDeposit" EntitySet="tblDeposits" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblKickOutRoom_tblPlayer" Association="GameChienModel.FK_tblKickOutRoom_tblPlayer">
+            <End Role="tblPlayer" EntitySet="tblPlayers" />
+            <End Role="tblKickOutRoom" EntitySet="tblKickOutRooms" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblRole_Permission_tblPermission" Association="GameChienModel.FK_tblRole_Permission_tblPermission">
+            <End Role="tblPermission" EntitySet="tblPermissions" />
+            <End Role="tblRole_Permission" EntitySet="tblRole_Permission" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblUser_Permission_tblPermission" Association="GameChienModel.FK_tblUser_Permission_tblPermission">
+            <End Role="tblPermission" EntitySet="tblPermissions" />
+            <End Role="tblUser_Permission" EntitySet="tblUser_Permission" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblPlayer_Room_tblPlayer" Association="GameChienModel.FK_tblPlayer_Room_tblPlayer">
+            <End Role="tblPlayer" EntitySet="tblPlayers" />
+            <End Role="tblPlayer_Room" EntitySet="tblPlayer_Room" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblRelationship_tblPlayer" Association="GameChienModel.FK_tblRelationship_tblPlayer">
+            <End Role="tblPlayer" EntitySet="tblPlayers" />
+            <End Role="tblRelationship" EntitySet="tblRelationships" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblRelationship_tblPlayer1" Association="GameChienModel.FK_tblRelationship_tblPlayer1">
+            <End Role="tblPlayer" EntitySet="tblPlayers" />
+            <End Role="tblRelationship" EntitySet="tblRelationships" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblRoom_tblPlayer" Association="GameChienModel.FK_tblRoom_tblPlayer">
+            <End Role="tblPlayer" EntitySet="tblPlayers" />
+            <End Role="tblRoom" EntitySet="tblRooms" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblPlayer_Room_tblRoom" Association="GameChienModel.FK_tblPlayer_Room_tblRoom">
+            <End Role="tblRoom" EntitySet="tblRooms" />
+            <End Role="tblPlayer_Room" EntitySet="tblPlayer_Room" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblRole_Permission_tblRole" Association="GameChienModel.FK_tblRole_Permission_tblRole">
+            <End Role="tblRole" EntitySet="tblRoles" />
+            <End Role="tblRole_Permission" EntitySet="tblRole_Permission" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblUser_tblRole" Association="GameChienModel.FK_tblUser_tblRole">
+            <End Role="tblRole" EntitySet="tblRoles" />
+            <End Role="tblUser" EntitySet="tblUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblRoom_tblRoomFee" Association="GameChienModel.FK_tblRoom_tblRoomFee">
+            <End Role="tblRoomFee" EntitySet="tblRoomFees" />
+            <End Role="tblRoom" EntitySet="tblRooms" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblRoom_tblRoomType" Association="GameChienModel.FK_tblRoom_tblRoomType">
+            <End Role="tblRoomType" EntitySet="tblRoomTypes" />
+            <End Role="tblRoom" EntitySet="tblRooms" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblTransaction_tblUser" Association="GameChienModel.FK_tblTransaction_tblUser">
+            <End Role="tblUser" EntitySet="tblUsers" />
+            <End Role="tblTransaction" EntitySet="tblTransactions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblUser_Permission_tblUser" Association="GameChienModel.FK_tblUser_Permission_tblUser">
+            <End Role="tblUser" EntitySet="tblUsers" />
+            <End Role="tblUser_Permission" EntitySet="tblUser_Permission" />
+          </AssociationSet>
+          <AssociationSet Name="FK_tblWithdraw_tblUser" Association="GameChienModel.FK_tblWithdraw_tblUser">
+            <End Role="tblUser" EntitySet="tblUsers" />
+            <End Role="tblWithdraw" EntitySet="tblWithdraws" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="tblBank">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="BankName" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="ShortName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Bin" Type="Int32" />
+          <Property Name="OrderNumber" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="tblBankAccountByPlayers" Relationship="GameChienModel.FK_tblBankAccountByPlayer_tblBank" FromRole="tblBank" ToRole="tblBankAccountByPlayer" />
+        </EntityType>
+        <EntityType Name="tblBankAccountByPlayer">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="PlayerId" Type="Guid" Nullable="false" />
+          <Property Name="BankId" Type="Guid" Nullable="false" />
+          <Property Name="BankAccountNumber" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="BankFullName" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="isActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="tblBank" Relationship="GameChienModel.FK_tblBankAccountByPlayer_tblBank" FromRole="tblBankAccountByPlayer" ToRole="tblBank" />
+          <NavigationProperty Name="tblPlayer" Relationship="GameChienModel.FK_tblBankAccountByPlayer_tblPlayer" FromRole="tblBankAccountByPlayer" ToRole="tblPlayer" />
+          <NavigationProperty Name="tblWithdraws" Relationship="GameChienModel.FK_tblWithdraw_tblBankAccountByPlayer" FromRole="tblBankAccountByPlayer" ToRole="tblWithdraw" />
+        </EntityType>
+        <EntityType Name="tblConfigTransactionByMobileApp">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Type" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="From" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="isActive" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tblCreditHistory">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="PlayerId" Type="Guid" Nullable="false" />
+          <Property Name="Amount" Type="Int64" Nullable="false" />
+          <Property Name="DepositId" Type="Guid" />
+          <Property Name="WithdrawId" Type="Guid" />
+          <Property Name="Description" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedTime" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="tblDeposit">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="PlayerId" Type="Guid" Nullable="false" />
+          <Property Name="Amount" Type="Int64" Nullable="false" />
+          <Property Name="AttachFile" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Status" Type="Boolean" />
+          <Property Name="TransactionId" Type="Guid" />
+          <Property Name="CreatedTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UpdatedBy" Type="Guid" />
+          <Property Name="UpdatedTime" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="tblPlayer" Relationship="GameChienModel.FK_tblPayin_tblPlayer" FromRole="tblDeposit" ToRole="tblPlayer" />
+          <NavigationProperty Name="tblTransaction" Relationship="GameChienModel.FK_tblPayin_tblTransaction" FromRole="tblDeposit" ToRole="tblTransaction" />
+        </EntityType>
+        <EntityType Name="tblKickOutRoom">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="RoomId" Type="Guid" Nullable="false" />
+          <Property Name="PlayerId" Type="Guid" Nullable="false" />
+          <Property Name="isActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="tblPlayer" Relationship="GameChienModel.FK_tblKickOutRoom_tblPlayer" FromRole="tblKickOutRoom" ToRole="tblPlayer" />
+        </EntityType>
+        <EntityType Name="tblLogOfMobileApp">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="Source" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Data" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tblNotification">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="Type" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="DeviceName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="From" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Data" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Data2" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Executed" Type="Boolean" Nullable="false" />
+          <Property Name="CreatedTime" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="tblPermission">
+          <Key>
+            <PropertyRef Name="Name" />
+          </Key>
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="tblRole_Permission" Relationship="GameChienModel.FK_tblRole_Permission_tblPermission" FromRole="tblPermission" ToRole="tblRole_Permission" />
+          <NavigationProperty Name="tblUser_Permission" Relationship="GameChienModel.FK_tblUser_Permission_tblPermission" FromRole="tblPermission" ToRole="tblUser_Permission" />
+        </EntityType>
+        <EntityType Name="tblPlayer">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="AccountName" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Password" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="FullName" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumber" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="GameAccount" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Email" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Avatar" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Gender" Type="Int32" />
+          <Property Name="Credit" Type="Int64" Nullable="false" />
+          <Property Name="GameLevel" Type="Int32" Nullable="false" />
+          <Property Name="PercentOfLevelUp" Type="Int32" Nullable="false" />
+          <Property Name="LastIPAddress" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="LastTimeModified" Type="DateTime" Precision="3" />
+          <Property Name="CreatedTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Status" Type="Int32" Nullable="false" />
+          <Property Name="isVerifiedGameAccount" Type="Boolean" Nullable="false" />
+          <Property Name="isBlock" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="tblBankAccountByPlayers" Relationship="GameChienModel.FK_tblBankAccountByPlayer_tblPlayer" FromRole="tblPlayer" ToRole="tblBankAccountByPlayer" />
+          <NavigationProperty Name="tblDeposits" Relationship="GameChienModel.FK_tblPayin_tblPlayer" FromRole="tblPlayer" ToRole="tblDeposit" />
+          <NavigationProperty Name="tblKickOutRooms" Relationship="GameChienModel.FK_tblKickOutRoom_tblPlayer" FromRole="tblPlayer" ToRole="tblKickOutRoom" />
+          <NavigationProperty Name="tblPlayer_Room" Relationship="GameChienModel.FK_tblPlayer_Room_tblPlayer" FromRole="tblPlayer" ToRole="tblPlayer_Room" />
+          <NavigationProperty Name="tblRelationships" Relationship="GameChienModel.FK_tblRelationship_tblPlayer" FromRole="tblPlayer" ToRole="tblRelationship" />
+          <NavigationProperty Name="tblRelationships1" Relationship="GameChienModel.FK_tblRelationship_tblPlayer1" FromRole="tblPlayer" ToRole="tblRelationship" />
+          <NavigationProperty Name="tblRooms" Relationship="GameChienModel.FK_tblRoom_tblPlayer" FromRole="tblPlayer" ToRole="tblRoom" />
+        </EntityType>
+        <EntityType Name="tblPlayer_Room">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="PlayerId" Type="Guid" Nullable="false" />
+          <Property Name="RoomId" Type="Guid" Nullable="false" />
+          <Property Name="isOwner" Type="Boolean" Nullable="false" />
+          <Property Name="isTeam" Type="Boolean" Nullable="false" />
+          <Property Name="TimeJoin" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="isReady" Type="Boolean" Nullable="false" />
+          <Property Name="isVoteWin" Type="Boolean" />
+          <Property Name="EndTime" Type="DateTime" Precision="3" />
+          <Property Name="AttachFile" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="tblPlayer" Relationship="GameChienModel.FK_tblPlayer_Room_tblPlayer" FromRole="tblPlayer_Room" ToRole="tblPlayer" />
+          <NavigationProperty Name="tblRoom" Relationship="GameChienModel.FK_tblPlayer_Room_tblRoom" FromRole="tblPlayer_Room" ToRole="tblRoom" />
+        </EntityType>
+        <EntityType Name="tblRelationship">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="FromPlayer" Type="Guid" Nullable="false" />
+          <Property Name="ToPlayer" Type="Guid" Nullable="false" />
+          <Property Name="isFriend" Type="Boolean" />
+          <Property Name="isBlock" Type="Boolean" Nullable="false" />
+          <Property Name="CreatedTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="LastUpdateTime" Type="DateTime" Precision="3" />
+          <Property Name="isActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="tblPlayer" Relationship="GameChienModel.FK_tblRelationship_tblPlayer" FromRole="tblRelationship" ToRole="tblPlayer" />
+          <NavigationProperty Name="tblPlayer1" Relationship="GameChienModel.FK_tblRelationship_tblPlayer1" FromRole="tblRelationship" ToRole="tblPlayer" />
+        </EntityType>
+        <EntityType Name="tblRole">
+          <Key>
+            <PropertyRef Name="Name" />
+          </Key>
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Level" Type="Int32" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="tblRole_Permission" Relationship="GameChienModel.FK_tblRole_Permission_tblRole" FromRole="tblRole" ToRole="tblRole_Permission" />
+          <NavigationProperty Name="tblUsers" Relationship="GameChienModel.FK_tblUser_tblRole" FromRole="tblRole" ToRole="tblUser" />
+        </EntityType>
+        <EntityType Name="tblRole_Permission">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="RoleName" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="PermissionName" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="tblPermission" Relationship="GameChienModel.FK_tblRole_Permission_tblPermission" FromRole="tblRole_Permission" ToRole="tblPermission" />
+          <NavigationProperty Name="tblRole" Relationship="GameChienModel.FK_tblRole_Permission_tblRole" FromRole="tblRole_Permission" ToRole="tblRole" />
+        </EntityType>
+        <EntityType Name="tblRoom">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="Code" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="RoomTypeId" Type="Guid" Nullable="false" />
+          <Property Name="AmountBet" Type="Int64" Nullable="false" />
+          <Property Name="RoomFeeId" Type="Guid" Nullable="false" />
+          <Property Name="Password" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="TotalNumOfPlayer" Type="Int32" Nullable="false" />
+          <Property Name="NumOfJoined" Type="Int32" Nullable="false" />
+          <Property Name="CreatedTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatedByPlayerId" Type="Guid" Nullable="false" />
+          <Property Name="StartTime" Type="DateTime" Precision="3" />
+          <Property Name="EndTime" Type="DateTime" Precision="3" />
+          <Property Name="isTeamWin" Type="Boolean" />
+          <Property Name="isActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="tblPlayer" Relationship="GameChienModel.FK_tblRoom_tblPlayer" FromRole="tblRoom" ToRole="tblPlayer" />
+          <NavigationProperty Name="tblPlayer_Room" Relationship="GameChienModel.FK_tblPlayer_Room_tblRoom" FromRole="tblRoom" ToRole="tblPlayer_Room" />
+          <NavigationProperty Name="tblRoomFee" Relationship="GameChienModel.FK_tblRoom_tblRoomFee" FromRole="tblRoom" ToRole="tblRoomFee" />
+          <NavigationProperty Name="tblRoomType" Relationship="GameChienModel.FK_tblRoom_tblRoomType" FromRole="tblRoom" ToRole="tblRoomType" />
+        </EntityType>
+        <EntityType Name="tblRoomFee">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="FeeValue" Type="Int32" Nullable="false" />
+          <Property Name="isPercent" Type="Boolean" Nullable="false" />
+          <Property Name="CreatedTime" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="tblRooms" Relationship="GameChienModel.FK_tblRoom_tblRoomFee" FromRole="tblRoomFee" ToRole="tblRoom" />
+        </EntityType>
+        <EntityType Name="tblRoomType">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="TotalNumOfPlayer" Type="Int32" Nullable="false" />
+          <Property Name="CreatedTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="isActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="tblRooms" Relationship="GameChienModel.FK_tblRoom_tblRoomType" FromRole="tblRoomType" ToRole="tblRoom" />
+        </EntityType>
+        <EntityType Name="tblTransaction">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="GetBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Device" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="BankName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="TransactionDate" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="TransactionTime" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="CD" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="Amount" Type="Int64" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Status" Type="Boolean" />
+          <Property Name="LastUpdateBy" Type="Guid" />
+          <Property Name="LastUpdateTime" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="tblDeposits" Relationship="GameChienModel.FK_tblPayin_tblTransaction" FromRole="tblTransaction" ToRole="tblDeposit" />
+          <NavigationProperty Name="tblUser" Relationship="GameChienModel.FK_tblTransaction_tblUser" FromRole="tblTransaction" ToRole="tblUser" />
+        </EntityType>
+        <EntityType Name="tblUser">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="UserName" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="PassWord" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="FullName" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="RoleName" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="isActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="tblRole" Relationship="GameChienModel.FK_tblUser_tblRole" FromRole="tblUser" ToRole="tblRole" />
+          <NavigationProperty Name="tblTransactions" Relationship="GameChienModel.FK_tblTransaction_tblUser" FromRole="tblUser" ToRole="tblTransaction" />
+          <NavigationProperty Name="tblUser_Permission" Relationship="GameChienModel.FK_tblUser_Permission_tblUser" FromRole="tblUser" ToRole="tblUser_Permission" />
+          <NavigationProperty Name="tblWithdraws" Relationship="GameChienModel.FK_tblWithdraw_tblUser" FromRole="tblUser" ToRole="tblWithdraw" />
+        </EntityType>
+        <EntityType Name="tblUser_Permission">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="UserId" Type="Guid" Nullable="false" />
+          <Property Name="PermissionName" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="tblPermission" Relationship="GameChienModel.FK_tblUser_Permission_tblPermission" FromRole="tblUser_Permission" ToRole="tblPermission" />
+          <NavigationProperty Name="tblUser" Relationship="GameChienModel.FK_tblUser_Permission_tblUser" FromRole="tblUser_Permission" ToRole="tblUser" />
+        </EntityType>
+        <EntityType Name="tblWithdraw">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Guid" Nullable="false" />
+          <Property Name="BankAccountByPlayerId" Type="Guid" Nullable="false" />
+          <Property Name="Amount" Type="Int64" Nullable="false" />
+          <Property Name="Status" Type="Boolean" />
+          <Property Name="CreatedTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UpdatedBy" Type="Guid" />
+          <Property Name="UpdatedTime" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="tblBankAccountByPlayer" Relationship="GameChienModel.FK_tblWithdraw_tblBankAccountByPlayer" FromRole="tblWithdraw" ToRole="tblBankAccountByPlayer" />
+          <NavigationProperty Name="tblUser" Relationship="GameChienModel.FK_tblWithdraw_tblUser" FromRole="tblWithdraw" ToRole="tblUser" />
+        </EntityType>
+        <EntityType Name="tblConfig">
+          <Key>
+            <PropertyRef Name="MinBet" />
+          </Key>
+          <Property Name="MinBet" Type="Int64" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_tblBankAccountByPlayer_tblBank">
+          <End Type="GameChienModel.tblBank" Role="tblBank" Multiplicity="1" />
+          <End Type="GameChienModel.tblBankAccountByPlayer" Role="tblBankAccountByPlayer" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblBank">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblBankAccountByPlayer">
+              <PropertyRef Name="BankId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblBankAccountByPlayer_tblPlayer">
+          <End Type="GameChienModel.tblPlayer" Role="tblPlayer" Multiplicity="1" />
+          <End Type="GameChienModel.tblBankAccountByPlayer" Role="tblBankAccountByPlayer" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblBankAccountByPlayer">
+              <PropertyRef Name="PlayerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblWithdraw_tblBankAccountByPlayer">
+          <End Type="GameChienModel.tblBankAccountByPlayer" Role="tblBankAccountByPlayer" Multiplicity="1" />
+          <End Type="GameChienModel.tblWithdraw" Role="tblWithdraw" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblBankAccountByPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblWithdraw">
+              <PropertyRef Name="BankAccountByPlayerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblPayin_tblPlayer">
+          <End Type="GameChienModel.tblPlayer" Role="tblPlayer" Multiplicity="1" />
+          <End Type="GameChienModel.tblDeposit" Role="tblDeposit" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblDeposit">
+              <PropertyRef Name="PlayerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblPayin_tblTransaction">
+          <End Type="GameChienModel.tblTransaction" Role="tblTransaction" Multiplicity="0..1" />
+          <End Type="GameChienModel.tblDeposit" Role="tblDeposit" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblTransaction">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblDeposit">
+              <PropertyRef Name="TransactionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblKickOutRoom_tblPlayer">
+          <End Type="GameChienModel.tblPlayer" Role="tblPlayer" Multiplicity="1" />
+          <End Type="GameChienModel.tblKickOutRoom" Role="tblKickOutRoom" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblKickOutRoom">
+              <PropertyRef Name="PlayerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblRole_Permission_tblPermission">
+          <End Type="GameChienModel.tblPermission" Role="tblPermission" Multiplicity="1" />
+          <End Type="GameChienModel.tblRole_Permission" Role="tblRole_Permission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPermission">
+              <PropertyRef Name="Name" />
+            </Principal>
+            <Dependent Role="tblRole_Permission">
+              <PropertyRef Name="PermissionName" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblUser_Permission_tblPermission">
+          <End Type="GameChienModel.tblPermission" Role="tblPermission" Multiplicity="1" />
+          <End Type="GameChienModel.tblUser_Permission" Role="tblUser_Permission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPermission">
+              <PropertyRef Name="Name" />
+            </Principal>
+            <Dependent Role="tblUser_Permission">
+              <PropertyRef Name="PermissionName" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblPlayer_Room_tblPlayer">
+          <End Type="GameChienModel.tblPlayer" Role="tblPlayer" Multiplicity="1" />
+          <End Type="GameChienModel.tblPlayer_Room" Role="tblPlayer_Room" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblPlayer_Room">
+              <PropertyRef Name="PlayerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblRelationship_tblPlayer">
+          <End Type="GameChienModel.tblPlayer" Role="tblPlayer" Multiplicity="1" />
+          <End Type="GameChienModel.tblRelationship" Role="tblRelationship" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblRelationship">
+              <PropertyRef Name="FromPlayer" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblRelationship_tblPlayer1">
+          <End Type="GameChienModel.tblPlayer" Role="tblPlayer" Multiplicity="1" />
+          <End Type="GameChienModel.tblRelationship" Role="tblRelationship" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblRelationship">
+              <PropertyRef Name="ToPlayer" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblRoom_tblPlayer">
+          <End Type="GameChienModel.tblPlayer" Role="tblPlayer" Multiplicity="1" />
+          <End Type="GameChienModel.tblRoom" Role="tblRoom" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblPlayer">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblRoom">
+              <PropertyRef Name="CreatedByPlayerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblPlayer_Room_tblRoom">
+          <End Type="GameChienModel.tblRoom" Role="tblRoom" Multiplicity="1" />
+          <End Type="GameChienModel.tblPlayer_Room" Role="tblPlayer_Room" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblRoom">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblPlayer_Room">
+              <PropertyRef Name="RoomId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblRole_Permission_tblRole">
+          <End Type="GameChienModel.tblRole" Role="tblRole" Multiplicity="1" />
+          <End Type="GameChienModel.tblRole_Permission" Role="tblRole_Permission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblRole">
+              <PropertyRef Name="Name" />
+            </Principal>
+            <Dependent Role="tblRole_Permission">
+              <PropertyRef Name="RoleName" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblUser_tblRole">
+          <End Type="GameChienModel.tblRole" Role="tblRole" Multiplicity="1" />
+          <End Type="GameChienModel.tblUser" Role="tblUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblRole">
+              <PropertyRef Name="Name" />
+            </Principal>
+            <Dependent Role="tblUser">
+              <PropertyRef Name="RoleName" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblRoom_tblRoomFee">
+          <End Type="GameChienModel.tblRoomFee" Role="tblRoomFee" Multiplicity="1" />
+          <End Type="GameChienModel.tblRoom" Role="tblRoom" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblRoomFee">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblRoom">
+              <PropertyRef Name="RoomFeeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblRoom_tblRoomType">
+          <End Type="GameChienModel.tblRoomType" Role="tblRoomType" Multiplicity="1" />
+          <End Type="GameChienModel.tblRoom" Role="tblRoom" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblRoomType">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblRoom">
+              <PropertyRef Name="RoomTypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblTransaction_tblUser">
+          <End Type="GameChienModel.tblUser" Role="tblUser" Multiplicity="0..1" />
+          <End Type="GameChienModel.tblTransaction" Role="tblTransaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblTransaction">
+              <PropertyRef Name="LastUpdateBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblUser_Permission_tblUser">
+          <End Type="GameChienModel.tblUser" Role="tblUser" Multiplicity="1" />
+          <End Type="GameChienModel.tblUser_Permission" Role="tblUser_Permission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblUser_Permission">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_tblWithdraw_tblUser">
+          <End Type="GameChienModel.tblUser" Role="tblUser" Multiplicity="0..1" />
+          <End Type="GameChienModel.tblWithdraw" Role="tblWithdraw" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="tblUser">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tblWithdraw">
+              <PropertyRef Name="UpdatedBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="GameChienModelStoreContainer" CdmEntityContainer="GameChienEntities">
+          <EntitySetMapping Name="tblBanks">
+            <EntityTypeMapping TypeName="GameChienModel.tblBank">
+              <MappingFragment StoreEntitySet="tblBank">
+                <ScalarProperty Name="OrderNumber" ColumnName="OrderNumber" />
+                <ScalarProperty Name="Bin" ColumnName="Bin" />
+                <ScalarProperty Name="ShortName" ColumnName="ShortName" />
+                <ScalarProperty Name="BankName" ColumnName="BankName" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblBankAccountByPlayers">
+            <EntityTypeMapping TypeName="GameChienModel.tblBankAccountByPlayer">
+              <MappingFragment StoreEntitySet="tblBankAccountByPlayer">
+                <ScalarProperty Name="isActive" ColumnName="isActive" />
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="BankFullName" ColumnName="BankFullName" />
+                <ScalarProperty Name="BankAccountNumber" ColumnName="BankAccountNumber" />
+                <ScalarProperty Name="BankId" ColumnName="BankId" />
+                <ScalarProperty Name="PlayerId" ColumnName="PlayerId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblConfigTransactionByMobileApps">
+            <EntityTypeMapping TypeName="GameChienModel.tblConfigTransactionByMobileApp">
+              <MappingFragment StoreEntitySet="tblConfigTransactionByMobileApp">
+                <ScalarProperty Name="isActive" ColumnName="isActive" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="From" ColumnName="From" />
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblCreditHistories">
+            <EntityTypeMapping TypeName="GameChienModel.tblCreditHistory">
+              <MappingFragment StoreEntitySet="tblCreditHistory">
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="WithdrawId" ColumnName="WithdrawId" />
+                <ScalarProperty Name="DepositId" ColumnName="DepositId" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="PlayerId" ColumnName="PlayerId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblDeposits">
+            <EntityTypeMapping TypeName="GameChienModel.tblDeposit">
+              <MappingFragment StoreEntitySet="tblDeposit">
+                <ScalarProperty Name="UpdatedTime" ColumnName="UpdatedTime" />
+                <ScalarProperty Name="UpdatedBy" ColumnName="UpdatedBy" />
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="TransactionId" ColumnName="TransactionId" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="AttachFile" ColumnName="AttachFile" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="PlayerId" ColumnName="PlayerId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblKickOutRooms">
+            <EntityTypeMapping TypeName="GameChienModel.tblKickOutRoom">
+              <MappingFragment StoreEntitySet="tblKickOutRoom">
+                <ScalarProperty Name="isActive" ColumnName="isActive" />
+                <ScalarProperty Name="PlayerId" ColumnName="PlayerId" />
+                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblLogOfMobileApps">
+            <EntityTypeMapping TypeName="GameChienModel.tblLogOfMobileApp">
+              <MappingFragment StoreEntitySet="tblLogOfMobileApp">
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="Data" ColumnName="Data" />
+                <ScalarProperty Name="Source" ColumnName="Source" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblNotifications">
+            <EntityTypeMapping TypeName="GameChienModel.tblNotification">
+              <MappingFragment StoreEntitySet="tblNotification">
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="Executed" ColumnName="Executed" />
+                <ScalarProperty Name="Data2" ColumnName="Data2" />
+                <ScalarProperty Name="Data" ColumnName="Data" />
+                <ScalarProperty Name="From" ColumnName="From" />
+                <ScalarProperty Name="DeviceName" ColumnName="DeviceName" />
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblPermissions">
+            <EntityTypeMapping TypeName="GameChienModel.tblPermission">
+              <MappingFragment StoreEntitySet="tblPermission">
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblPlayers">
+            <EntityTypeMapping TypeName="GameChienModel.tblPlayer">
+              <MappingFragment StoreEntitySet="tblPlayer">
+                <ScalarProperty Name="isBlock" ColumnName="isBlock" />
+                <ScalarProperty Name="isVerifiedGameAccount" ColumnName="isVerifiedGameAccount" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="LastTimeModified" ColumnName="LastTimeModified" />
+                <ScalarProperty Name="LastIPAddress" ColumnName="LastIPAddress" />
+                <ScalarProperty Name="PercentOfLevelUp" ColumnName="PercentOfLevelUp" />
+                <ScalarProperty Name="GameLevel" ColumnName="GameLevel" />
+                <ScalarProperty Name="Credit" ColumnName="Credit" />
+                <ScalarProperty Name="Gender" ColumnName="Gender" />
+                <ScalarProperty Name="Avatar" ColumnName="Avatar" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="GameAccount" ColumnName="GameAccount" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="AccountName" ColumnName="AccountName" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblPlayer_Room">
+            <EntityTypeMapping TypeName="GameChienModel.tblPlayer_Room">
+              <MappingFragment StoreEntitySet="tblPlayer_Room">
+                <ScalarProperty Name="AttachFile" ColumnName="AttachFile" />
+                <ScalarProperty Name="EndTime" ColumnName="EndTime" />
+                <ScalarProperty Name="isVoteWin" ColumnName="isVoteWin" />
+                <ScalarProperty Name="isReady" ColumnName="isReady" />
+                <ScalarProperty Name="TimeJoin" ColumnName="TimeJoin" />
+                <ScalarProperty Name="isTeam" ColumnName="isTeam" />
+                <ScalarProperty Name="isOwner" ColumnName="isOwner" />
+                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
+                <ScalarProperty Name="PlayerId" ColumnName="PlayerId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblRelationships">
+            <EntityTypeMapping TypeName="GameChienModel.tblRelationship">
+              <MappingFragment StoreEntitySet="tblRelationship">
+                <ScalarProperty Name="isActive" ColumnName="isActive" />
+                <ScalarProperty Name="LastUpdateTime" ColumnName="LastUpdateTime" />
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="isBlock" ColumnName="isBlock" />
+                <ScalarProperty Name="isFriend" ColumnName="isFriend" />
+                <ScalarProperty Name="ToPlayer" ColumnName="ToPlayer" />
+                <ScalarProperty Name="FromPlayer" ColumnName="FromPlayer" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblRoles">
+            <EntityTypeMapping TypeName="GameChienModel.tblRole">
+              <MappingFragment StoreEntitySet="tblRole">
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Level" ColumnName="Level" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblRole_Permission">
+            <EntityTypeMapping TypeName="GameChienModel.tblRole_Permission">
+              <MappingFragment StoreEntitySet="tblRole_Permission">
+                <ScalarProperty Name="PermissionName" ColumnName="PermissionName" />
+                <ScalarProperty Name="RoleName" ColumnName="RoleName" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblRooms">
+            <EntityTypeMapping TypeName="GameChienModel.tblRoom">
+              <MappingFragment StoreEntitySet="tblRoom">
+                <ScalarProperty Name="isActive" ColumnName="isActive" />
+                <ScalarProperty Name="isTeamWin" ColumnName="isTeamWin" />
+                <ScalarProperty Name="EndTime" ColumnName="EndTime" />
+                <ScalarProperty Name="StartTime" ColumnName="StartTime" />
+                <ScalarProperty Name="CreatedByPlayerId" ColumnName="CreatedByPlayerId" />
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="NumOfJoined" ColumnName="NumOfJoined" />
+                <ScalarProperty Name="TotalNumOfPlayer" ColumnName="TotalNumOfPlayer" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="RoomFeeId" ColumnName="RoomFeeId" />
+                <ScalarProperty Name="AmountBet" ColumnName="AmountBet" />
+                <ScalarProperty Name="RoomTypeId" ColumnName="RoomTypeId" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblRoomFees">
+            <EntityTypeMapping TypeName="GameChienModel.tblRoomFee">
+              <MappingFragment StoreEntitySet="tblRoomFee">
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="isPercent" ColumnName="isPercent" />
+                <ScalarProperty Name="FeeValue" ColumnName="FeeValue" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblRoomTypes">
+            <EntityTypeMapping TypeName="GameChienModel.tblRoomType">
+              <MappingFragment StoreEntitySet="tblRoomType">
+                <ScalarProperty Name="isActive" ColumnName="isActive" />
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="TotalNumOfPlayer" ColumnName="TotalNumOfPlayer" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblTransactions">
+            <EntityTypeMapping TypeName="GameChienModel.tblTransaction">
+              <MappingFragment StoreEntitySet="tblTransaction">
+                <ScalarProperty Name="LastUpdateTime" ColumnName="LastUpdateTime" />
+                <ScalarProperty Name="LastUpdateBy" ColumnName="LastUpdateBy" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="CD" ColumnName="CD" />
+                <ScalarProperty Name="TransactionTime" ColumnName="TransactionTime" />
+                <ScalarProperty Name="TransactionDate" ColumnName="TransactionDate" />
+                <ScalarProperty Name="BankName" ColumnName="BankName" />
+                <ScalarProperty Name="Device" ColumnName="Device" />
+                <ScalarProperty Name="GetBy" ColumnName="GetBy" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblUsers">
+            <EntityTypeMapping TypeName="GameChienModel.tblUser">
+              <MappingFragment StoreEntitySet="tblUser">
+                <ScalarProperty Name="isActive" ColumnName="isActive" />
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="RoleName" ColumnName="RoleName" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="PassWord" ColumnName="PassWord" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblUser_Permission">
+            <EntityTypeMapping TypeName="GameChienModel.tblUser_Permission">
+              <MappingFragment StoreEntitySet="tblUser_Permission">
+                <ScalarProperty Name="PermissionName" ColumnName="PermissionName" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblWithdraws">
+            <EntityTypeMapping TypeName="GameChienModel.tblWithdraw">
+              <MappingFragment StoreEntitySet="tblWithdraw">
+                <ScalarProperty Name="UpdatedTime" ColumnName="UpdatedTime" />
+                <ScalarProperty Name="UpdatedBy" ColumnName="UpdatedBy" />
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="BankAccountByPlayerId" ColumnName="BankAccountByPlayerId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tblConfigs">
+            <EntityTypeMapping TypeName="GameChienModel.tblConfig">
+              <MappingFragment StoreEntitySet="tblConfig">
+                <ScalarProperty Name="MinBet" ColumnName="MinBet" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

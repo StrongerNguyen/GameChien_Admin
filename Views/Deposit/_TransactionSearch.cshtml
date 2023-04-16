@@ -1,0 +1,66 @@
+﻿@using FT_Admin.Models
+@using FT_Admin.Models.Data
+@model CustomerRequestDto
+@{
+    List<tblTransaction> transactions = (List<tblTransaction>)ViewBag.Transactions;
+}
+<table class="table table-hover table-bordered table-sm table-responsive-sm m-0" style="width:100%">
+    <thead>
+        <tr>
+            <th colspan="5" class="text-center text-danger">CHI TIẾT LỆNH NẠP</th>
+        </tr>
+        <tr>
+            <th class="text-center">Time</th>
+            <th class="text-center">Game Id</th>
+            <th class="text-center">Game Account Name</th>
+            <th class="text-center">Phone</th>
+            <th class="text-center">Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="text-center align-middle">@Model.CreatedTime.ToString("HH:mm")</td>
+            <td class="text-center align-middle">@Model.GameId</td>
+            <td class="text-center align-middle">@Model.GameAccountName</td>
+            <td class="text-center align-middle">@Model.PhoneNumber</td>
+            <td class="text-center align-middle"><b>@(Model.Total?.ToString("N0") ?? "")</b></td>
+        </tr>
+    </tbody>
+</table>
+<div class="flex-grow-1 overflow-auto mt-3">
+    <table class="table table-hover table-bordered table-sm table-responsive-sm m-0" style="width:100%">
+        <thead>
+            <tr>
+                <th colspan="6" class="text-center text-success">DANH SÁCH GIAO DỊCH PHÙ HỢP</th>
+            </tr>
+            <tr>
+                <th class="text-center" style="width: 10%" data-order="BankName">BANK</th>
+                <th class="text-center" style="width: 10%" data-order="From">TIME</th>
+                <th class="text-center" data-order="Description">CONTENT</th>
+                <th class="text-center" style="width: 10%" data-order="Description">PHONE</th>
+                <th class="text-center" style="width: 10%" data-order="Amount">AMOUNT</th>
+                <th class="text-center" style="width: 10%" data-order="Status">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tran in transactions)
+            {
+                <tr data-id='@tran.Id'>
+                    <td class="text-center align-middle">@tran.BankName</td>
+                    <td class="text-center align-middle">@tran.PCTime</td>
+                    <td class="align-middle" style="overflow-wrap:anywhere">@tran.Description</td>
+                    <td class="text-center align-middle"><b>@tran.PhoneNumber</b></td>
+                    <td class="text-center align-middle">
+                        <b class="@(tran.CD == "-" ? "text-danger" : (tran.CD == "+" ? "text-success" : ""))">@(string.IsNullOrEmpty(tran.CD)?tran.Amount.ToString():$"{tran.CD}{tran.Amount?.ToString("N0") ?? ""}")</b>
+                    </td>
+                    <td class="text-center align-middle">
+                        <div class='btn-group'>
+                            <button class='btn btn-sm p-3 btn-success btnChooseTransaction' data-customerRequestId="@Model.Id" data-transactionId='@tran.Id'><b>CHỌN</b></button>
+                        </div>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

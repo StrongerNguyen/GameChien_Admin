@@ -1,0 +1,12 @@
+﻿@model FT_Admin.Models.ViewModel.UserViewModel
+<tr data-id='@Model.Id'>
+    <td class="align-middle text-center">@Model.UserName</td>
+    <td class="align-middle text-center">@Model.PassWord</td>
+    <td class="align-middle text-center">@Model.FullName</td>
+    <td class="align-middle text-center">@Model.RoleName</td>
+    <td class="align-middle text-center"><input type="checkbox" @(Model.isActive ? "checked" : "") /></td>
+    <td class="text-center align-middle">
+        <button class="btn btn-success btnUserPermission" data-id="@Model.Id"><i class='fa fa-magic' aria-hidden='true'></i> Phân quyền</button>
+        <button class="btn btn-primary btnEdit" data-id="@Model.Id"><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Sửa</button>
+    </td>
+</tr>

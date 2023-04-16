@@ -1,0 +1,11 @@
+﻿@model FT_Admin.Models.Dto.VipConfigDto
+
+<tr data-id='@Model.Id'>
+    <td class="align-middle text-center">@Model.Name</td>
+    <td class="align-middle text-center">@Model.FromAmount.ToString("N0")</td>
+    <td class="align-middle text-center">@(Model.ToAmount?.ToString("N0")??"")</td>
+    <td class="align-middle text-center">@Model.isActive</td>
+    <td class="text-center align-middle">
+        <button class="btn btn-primary btnEdit" data-id="@Model.Id"><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Cập nhật</button>
+    </td>
+</tr>

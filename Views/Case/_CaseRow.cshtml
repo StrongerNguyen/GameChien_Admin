@@ -1,0 +1,27 @@
+﻿@model FT_Admin.Models.Dto.CaseDto
+@{
+    Dictionary<int, string> Status = (Dictionary<int, string>)ViewBag.Status;
+}
+<tr data-id='@Model.Id'>
+    <td class="align-middle">@Model.Title</td>
+    <td class="align-middle">@Model.Detail</td>
+    <td class="align-middle" style="white-space: pre-line">@Model.Comment</td>
+    <td class="align-middle text-center">
+        @if (!string.IsNullOrEmpty(Model.AttachFile))
+        {
+            <a href='@Model.AttachFile' data-lightbox='@Model.Id' data-title='@Model.Title'><img src='@Model.AttachFile' style='max-height:100px;max-width:100px' /></a>
+        }
+    </td>
+    <td class="align-middle text-center">@Model.CreatedTime</td>
+    <td class="align-middle text-center">@Model.CreatedBy</td>
+    <td class="align-middle text-center">@Status[Model.Status]</td>
+    @if (User.IsInRole("actionCase"))
+    {
+        <td class="text-center align-middle">
+            @if (Model.Status != 1 && Model.Status != -1)
+            {
+                <button class="btn btn-primary btnEdit" data-id="@Model.Id"><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Cập nhật</button>
+            }
+        </td>
+    }
+</tr>

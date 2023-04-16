@@ -1,0 +1,39 @@
+﻿@model FT_Admin.Models.Data.tblTemplate
+
+<form method="post" action="/Template/Update">
+    @Html.TextBoxFor(t => t.Id, new { @class = "d-none" })
+    <table class="table table-bordered table-hover">
+        <tr class="d-none">
+            <td><label for="Id">Id</label></td>
+            <td>@Html.TextBoxFor(t => t.Id, new { @class = "form-control" })</td>
+        </tr>
+        <tr>
+            <td style="width:100px">
+                <label for="Name">Name</label>
+            </td>
+            <td>
+                <div>
+                    <span class="badge badge-primary name" style="cursor:pointer">dang_rut</span>
+                </div>
+                @Html.TextBoxFor(t => t.Name, new { @class = "form-control", @required = "required" })
+            </td>
+        </tr>
+        <tr>
+            <td><label for="Content">Template Content</label></td>
+            <td>
+                <div>
+                    <span class="badge badge-primary key" style="cursor:pointer">{BankName}</span>
+                    <span class="badge badge-primary key" style="cursor:pointer">{BankAccountNumber}</span>
+                    <span class="badge badge-primary key" style="cursor:pointer">{BankFullName}</span>
+                    <span class="badge badge-primary key" style="cursor:pointer">{Point}</span>
+                    <span class="badge badge-primary key" style="cursor:pointer">{MoneyOfPoint}</span>
+                    <span class="badge badge-primary key" style="cursor:pointer">{Total}</span>
+                </div>
+                @Html.TextAreaFor(t => t.TemplateContent, new { @class = "form-control", @required = "required", @rows = 8 })
+            </td>
+        </tr>
+    </table>
+    <button type="submit" class="btn btn-success d-block mx-auto">@(Model==null?"Thêm mới":"Cập nhật")</button>
+</form>
+
+

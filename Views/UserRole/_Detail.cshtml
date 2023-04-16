@@ -1,0 +1,22 @@
+﻿@using FT_Admin.Models.Data
+@model List<tblRole>
+@{
+    List<tblUser_Role> userRoles = (List<tblUser_Role>)ViewBag.UserRole;
+}
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <td>Mô tả</td>
+            <td>Chọn</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var role in Model)
+        {
+            <tr>
+                <td>@role.Description</td>
+                <td><input type="checkbox" class="ipCheckRole" data-rolename="@role.RoleName" data-username="@ViewBag.UserName" @(userRoles.Count(t => t.RoleName.Equals(role.RoleName)) > 0 ? "checked" : "") /></td>
+            </tr>
+        }
+    </tbody>
+</table>

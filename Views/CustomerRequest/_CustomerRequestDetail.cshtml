@@ -1,0 +1,70 @@
+﻿@using BankMessage.Models
+@model CustomerRequestDto
+@{
+    string status = (string)ViewBag.status;
+}
+<table class="table table-hover table-bordered">
+    <tbody>
+        <tr>
+            <td style="width:160px;vertical-align:middle">Game ID</td>
+            <td>@Model.GameId</td>
+        </tr>
+        <tr>
+            <td style="vertical-align:middle">Tài khoản</td>
+            <td>@Model.GameAccountName</td>
+        </tr>
+        <tr>
+            <td>Số điện thoại</td>
+            <td>@Model.PhoneNumber</td>
+        </tr>
+        @if (Model.Type)
+        {
+            <tr>
+                <td>Số điểm</td>
+                <td>@Model.Point</td>
+            </tr>
+            <tr>
+                <td>Giá trị quy đổi</td>
+                <td>@Model.MoneyOfPoint</td>
+            </tr>
+            <tr>
+                <td>Tổng tiền</td>
+                <td>@Model.Total</td>
+            </tr>
+            <tr>
+                <td style="vertical-align:middle">Ảnh chuyển khoản</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(Model.AttachFile))
+                    {
+                        <a href="@Model.AttachFile" data-lightbox="@Model.Id" data-title="@Model.GameId"><img src="@Model.AttachFile" style="max-width:200px;max-height:150px" /></a>
+                    }
+                </td>
+            </tr>
+        }
+        else
+        {
+            <tr>
+                <td>Ngân hàng</td>
+                <td>@Model.BankName</td>
+            </tr>
+            <tr>
+                <td>Số tài khoản</td>
+                <td>@Model.BankAccountNumber</td>
+            </tr>
+            <tr>
+                <td style="width:150px">Tên chủ tài khoản</td>
+                <td>@Model.BankFullName</td>
+            </tr>
+            <tr>
+                <td>Số điểm rút</td>
+                <td>@Model.Point</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div class="text-center mb-3">
+    <span>Ghi chú</span>
+    <textarea class="form-control mt-2" id="ipNote"></textarea>
+</div>
+
+<button class="btn @(status=="yes"?"btn-success":"btn-danger") m-auto d-block" id="btnUpdateStatus" data-id="@Model.Id" data-status="@status">Update trạng thái @status.ToUpper()</button>

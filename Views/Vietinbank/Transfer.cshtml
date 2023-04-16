@@ -1,0 +1,113 @@
+﻿@using FT_Admin.Models.Vietinbank
+@using FT_Admin.Models.Data
+@{
+    ViewBag.Title = "Chuyển tiền Vietinbank";
+    List<CodeMapping> bankLists = (List<CodeMapping>)ViewBag.BankList;
+    tblBankAccount bankAccount = (tblBankAccount)ViewBag.bankAccount;
+}
+<input id="bankAccountId" value="@bankAccount.Id" hidden />
+<div class="p-4">
+    <div style="font-size:18px;">Tài khoản <strong class="text-danger">@(bankAccount.UserName)</strong></div>
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-body">
+                    <div style="padding:5px;">
+                        <img src="~/Content/Images/LogoBank/vietinbank.png" style="margin:auto;display:block;height:50px" />
+                    </div>
+                    <div class="mt-2">
+                        <label for="bankcode">Ngân hàng nhận:</label>
+                        <select class="form-control" id="bankcode" name="bankcode">
+                            <option value="">Vietinbank</option>
+                            @foreach (var i in bankLists)
+                            {
+                                <option value="@i.code">@i.value</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mt-2">
+                        <label for="stkNhan">Số tài khoản nhận:</label>
+                        <input class="form-control" id="stkNhan" name="stkNhan" />
+                    </div>
+                    <button class="btn btn-primary mt-3 w-100" id="btnGetAccountDetail">Lấy thông tin tài khoản nhận</button>
+                    <div class="frmCreate" hidden>
+                        <div class="mt-2">
+                            <label>Người nhận:</label>
+                            <input class="form-control" readonly name="name" />
+                        </div>
+                        <div class="mt-2">
+                            <label for="amount">Số tiền:</label>
+                            <input type="number" class="form-control" id="amount" name="amount" />
+                        </div>
+                        <div class="mt-2">
+                            <label for="note">Ghi chú(không dấu):</label>
+                            <input class="form-control" name="note" id="note" />
+                        </div>
+                        <button class="btn btn-success mt-3 w-100" id="btnCreateTransfer">Đồng ý chuyển khoản</button>
+                    </div>
+                    <div id="message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section script{
+    <script>
+        $(document).ready(function () {
+            $("#btnGetAccountDetail").click(function () {
+                $.ajax({
+                    url: "/Vietinbank/getAccountDetail",
+                    method: "POST",
+                    data: {
+                        bankAccountId: $("#bankAccountId").val(),
+                        bankCode: $("#bankcode").val(),
+                        stkNhan: $("#stkNhan").val()
+                    },
+                    beforeSend: function () {
+                        $("#btnGetAccountDetail").attr("disabled", "disabled");
+                        $("#btnGetAccountDetail").html("<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> Đang lấy thông tin tài khoản nhận...");
+                        $("input[name='name']").val("");
+                        $(".frmCreate").attr("hidden", "hidden");
+                    },
+                    error: function (err) {
+                        toastr.error(err);
+                        $("#btnGetAccountDetail").removeAttr("disabled");
+                        $("#btnGetAccountDetail").html("Lấy thông tin tài khoản nhận");
+                        $("#message").html("");
+                    },
+                    success: function (rs) {
+                        $("#btnGetAccountDetail").removeAttr("disabled");
+                        $("#btnGetAccountDetail").html("Lấy thông tin tài khoản nhận");
+                        $("#message").html("");
+                        if (rs.success) {
+                            $("input[name='name']").val(rs.data.name);
+                            $(".frmCreate").removeAttr("hidden");
+                        }
+                        else {
+                            $("#message").append("<label class='alert alert-danger d-block mt-3 mb-0'>" + rs.message + "</label>");
+                        }
+                    }
+                });
+            });
+            $("#btnCreateTransfer").click(function () {
+                $.ajax({
+                    url: "/Vietinbank/createTransfer",
+                    method: "POST",
+                    data: {
+                        bankAccountId: $("#bankAccountId").val(),
+                        bankCode: $("#bankcode").val(),
+                        stkNhan: $("#stkNhan").val(),
+                        amount: $("#amount").val(),
+                        note: $("#note").val()
+                    },
+                    error: function (err) {
+                        toastr.error(err);
+                    },
+                    success: function (rs) {
+                        $("#message").append("<label class='alert alert-" + (rs.success == true ? "success" : "danger") + " d-block mt-2'>" + rs.message + "</label>");
+                    }
+                });
+            });
+        });
+    </script>
+}

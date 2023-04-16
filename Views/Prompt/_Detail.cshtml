@@ -1,0 +1,42 @@
+﻿@model FT_Admin.Models.Data.tblPrompt
+<form method="post" action="/Prompt/Update">
+    @Html.TextBoxFor(t => t.Id, new { hidden = "hidden" })
+    <table class="table table-bordered table-hover">
+        <tr>
+            <td><label for="Name">Trang</label></td>
+            <td>
+                <select class="form-control" name="PageRoute">
+                    <option disabled @(string.IsNullOrEmpty(Model.PageRoute) ? "selected" : "")>Chọn trang hiển thị</option>
+                    <option value="home" @((Model.PageRoute ?? "").Equals("home") ? "selected" : "")>Trang chủ</option>
+                    <option value="register" @((Model.PageRoute ?? "").Equals("register") ? "selected" : "")>Trang đăng ký</option>
+                    <option value="login" @((Model.PageRoute ?? "").Equals("login") ? "selected" : "")>Trang đăng nhập</option>
+                    <option value="deposit" @((Model.PageRoute ?? "").Equals("deposit") ? "selected" : "")>Trang nạp</option>
+                    <option value="withdraw" @((Model.PageRoute ?? "").Equals("withdraw") ? "selected" : "")>Trang rút</option>
+                    <option value="accountinfo" @((Model.PageRoute ?? "").Equals("accountinfo") ? "selected" : "")>Trang thông tin tài khoản</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="Image">Hình ảnh</label></td>
+            <td>
+                <input type="file" name="UploadFile" accept="image/*" class="form-control db-block rounded" />
+                <input type="text" name="Image" hidden />
+                <div id="preview" class="d-flex justify-content-center">
+                    @if (!string.IsNullOrEmpty(Model.Image))
+                    {
+                        <img class='d-block' style='max-width:200px' src='@Model.Image' />
+                    }
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="Content">Nội dung</label></td>
+            <td>@Html.TextAreaFor(t => t.Content, new { @class = "form-control",rows=10 })</td>
+        </tr>
+        <tr>
+            <td><label for="isActive">Trạng thái</label></td>
+            <td>@Html.CheckBoxFor(t => t.isActive, new { type = "checkbox", @class = "form-control" })</td>
+        </tr>
+    </table>
+    <button type="submit" class="btn btn-success d-block mx-auto">@(Model==null?"Thêm mới":"Cập nhật")</button>
+</form>

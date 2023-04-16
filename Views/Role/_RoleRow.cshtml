@@ -1,0 +1,10 @@
+﻿@model FT_Admin.Models.ViewModel.RoleViewModel
+<tr data-id='@Model.Name'>
+    <td class="align-middle text-center">@Model.Name</td>
+    <td class="align-middle text-center">@Model.Level</td>
+    <td class="align-middle">@Model.Description</td>
+    <td class="text-center align-middle">
+        <button class="btn btn-success btnRolePermission" data-id="@Model.Name"><i class='fa fa-magic' aria-hidden='true'></i> Phân quyền</button>
+        <button class="btn btn-primary btnEdit ml-2" data-id="@Model.Name"><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Chỉnh sửa</button>
+    </td>
+</tr>

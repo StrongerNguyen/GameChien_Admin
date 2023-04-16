@@ -1,0 +1,83 @@
+﻿@using FT_Admin.Models;
+@using System.Configuration;
+
+@model CustomerRequestDto
+@{
+    List<string> listNoteRecommend = (List<string>)ViewBag.listNoteRecommend ?? new List<string>();
+    List<string> listBankRecommend = (List<string>)ViewBag.listBankRecommend ?? new List<string>();
+    string QRCodeTemplate = (string)ViewBag.QRCodeTemplate ?? "";
+}
+<table class="table table-hover table-bordered table-sm">
+    <tbody>
+        <tr>
+            <td style="width:160px;vertical-align:middle">Game ID</td>
+            <td>@Model.GameId</td>
+        </tr>
+        <tr>
+            <td style="vertical-align:middle">Tài khoản game</td>
+            <td>@Model.GameAccountName</td>
+        </tr>
+        <tr>
+            <td>Số điện thoại</td>
+            <td>@Model.PhoneNumber</td>
+        </tr>
+        <tr>
+            <td>Số điểm rút</td>
+            <td>@Model.Point</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-center" id="pnYesNo">
+    <div class="btn-group">
+        @if (string.IsNullOrEmpty(Model.SubtractPointBy))
+        {
+            <button class="btn btn-success m-auto d-block" id="btnSubtractPoint" data-id="@Model.Id"><i class="fa fa-check" aria-hidden="true"></i> ĐỒNG Ý TRỪ ĐIỂM</button>
+        }
+
+    </div>
+</div>
+
+<div id="pnChooseBankSend" class="text-center @(string.IsNullOrEmpty(Model.SubtractPointBy)?"d-none":"")">
+    <div class="d-flex justify-content-center">
+        @if (!string.IsNullOrEmpty(Model.BankBin))
+        {
+            <div>
+                <img src='@QRCodeTemplate.Replace("[bin]",Model.BankBin).Replace("[bankaccountnumber]",Model.BankAccountNumber).Replace("[amount]",(Model.Total??0).ToString()).Replace("[note]",Model.CreatedTime.ToString("ddMMHHmm"))' style='max-height:200px;' />
+            </div>
+        }
+        <div class="d-flex align-items-center justify-content-center">
+            <ul style="list-style:none;padding:0;margin:1rem">
+                <li class="m-2"><b>@Model.BankName</b></li>
+                <li class="m-2"><b>@Model.BankAccountNumber</b></li>
+                <li class="m-2"><b>@Model.BankFullName</b></li>
+                <li class="m-2"><b class="text-danger">@((Model.Total??0).ToString("N0"))</b></li>
+            </ul>
+        </div>
+    </div>
+    <div>
+        <div class="text-primary m-2 font-weight-bold">Chọn ngân hàng chuyển đi</div>
+        <div>
+            @foreach (var item in listBankRecommend)
+            {
+                <span class="badge badge-primary bankrecommend p-2" style="cursor:pointer">@item</span>
+            }
+        </div>
+    </div>
+    <input type="text" class="form-control my-2" id="ipbank" value="@Model.SendFromBank" />
+    <button class="btn btn-success m-auto d-block" id="btnSaveBankSend" data-id="@Model.Id">CHUYỂN KHOẢN THÀNH CÔNG</button>
+</div>
+<div class="text-center p-2 my-2" id="pnError" style="background-color:#f2f2f2">
+    <b>Ghi chú</b>
+    <div>
+        @foreach (var item in listNoteRecommend)
+        {
+            <span class="badge badge-primary recommend p-2" style="cursor:pointer">@item</span>
+        }
+    </div>
+    <textarea class="form-control my-2" id="ipNote">@(Model.ReportErrorMessage??Model.Note)</textarea>
+    <div class="btn-group mx-auto">
+        <button class="btn btn-warning" id="btnReport" data-id="@Model.Id"><i class="fa fa-floppy-o" aria-hidden="true"></i> BÁO LỖI LỆNH</button>
+        <button class="btn btn-danger" id="btnNo" data-id="@Model.Id"><i class="fa fa-times" aria-hidden="true"></i> LOẠI BỎ LỆNH</button>
+    </div>
+</div>

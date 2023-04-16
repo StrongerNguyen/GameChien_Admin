@@ -1,0 +1,91 @@
+﻿@using FT_Admin.Models.Data
+@model List<tblBankConfig>
+@{
+    ViewBag.Title = "BankConfig";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input id="ipRole" value="@(User.IsInRole("0")?0:1)" hidden />
+@section header{
+    <div class="pl-2"><h5 class="mb-0" style="color:#f60"><i class="fa fa-caret-right" aria-hidden="true"></i> @ViewBag.Title</h5></div>
+
+}
+<div class="d-flex justify-content-between p-2" style="background-color:#f2f2f2">
+    <button class="btn btn-primary btn-sm" onclick="Detail()"><i class="fa fa-plus" aria-hidden="true"></i> Thêm mới</button>
+    <div class="input-group input-group-sm" style="max-width:250px">
+        <input type="text" class="form-control" placeholder="Nhập từ khóa tìm kiếm" />
+        <div class="input-group-append">
+            <button class="btn btn-primary btn-sm" type="button"><i class="fa fa-search" aria-hidden="true"></i> Search</button>
+        </div>
+    </div>
+</div>
+<div class="p-2">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th style="text-align: center">BankName</th>
+                <th style="text-align: center">Logo</th>
+                <th style="text-align: center">Use OTP When Login</th>
+                <th style="text-align: center">Use AccountNumber When Login</th>
+                <th style="text-align: center">Nhận biến động bằng SMS</th>
+                <th style="text-align: center">Nhận biến động bằng API</th>
+                <th style="text-align: center">Nhận biến động bằng Notify</th>
+                <th style="text-align: center">Kích hoạt</th>
+                <th style="text-align: center"></th>
+            </tr>
+        </thead>
+        <tbody id="tblBody">
+            @foreach (var bc in Model)
+            {
+                <tr>
+                    <td style="text-align:center">@bc.BankName</td>
+                    <td style="text-align:center"><img src="@bc.Logo" style="max-height:40px" /></td>
+                    <td style="text-align:center"><input type="checkbox" @(bc.isUseOTPInLogin == true ? "checked" : "") /></td>
+                    <td style="text-align:center"><input type="checkbox" @(bc.isUseAccountNumberInLogin == true ? "checked" : "") /></td>
+                    <td style="text-align:center"><input type="checkbox" @(bc.isUseSMS == true ? "checked" : "") /></td>
+                    <td style="text-align:center"><input type="checkbox" @(bc.isUseAPI == true ? "checked" : "") /></td>
+                    <td style="text-align:center"><input type="checkbox" @(bc.isUseNotify == true ? "checked" : "") /></td>
+                    <td style="text-align:center"><input type="checkbox" @(bc.isActive == true ? "checked" : "") /></td>
+                    <td style="text-align:center"><button class="btn btn-primary" onclick="Detail(@bc.Id)"><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Sửa</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="modal fade" id="modalDetail" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm mới</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="word-break:break-word"></div>
+        </div>
+    </div>
+</div>
+@section script{
+    <script>
+        function Detail(id) {
+            $.ajax({
+                url: "/BankConfig/Detail",
+                method: "POST",
+                data: {
+                    id: id
+                },
+                error: function (ex) {
+                    toastr.error(ex);
+                },
+                success: function (rs) {
+                    if (id == null) {
+                        $("#modalDetail .modal-title").html("Thêm mới");
+                    } else {
+                        $("#modalDetail .modal-title").html("Cập nhật");
+                    }
+                    $("#modalDetail .modal-body").html(rs);
+                    $("#modalDetail").modal("show");
+                }
+            });
+        }
+    </script>
+}

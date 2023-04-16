@@ -1,0 +1,8 @@
+﻿@model FT_Admin.Models.ViewModel.PermissionViewModel
+<tr data-id='@Model.Name'>
+    <td class="align-middle text-center">@Model.Name</td>
+    <td class="align-middle">@Model.Description</td>
+    <td class="text-center align-middle">
+        <button class="btn btn-primary btnEdit" data-id="@Model.Name"><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Sửa</button>
+    </td>
+</tr>

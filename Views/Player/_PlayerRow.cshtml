@@ -1,0 +1,31 @@
+﻿@model FT_Admin.Models.ViewModel.PlayerViewModel
+<tr data-id='@Model.Id'>
+    <td style='text-align:center;vertical-align:middle'>@Model.CreatedTime.ToString("dd/MM/yyyy HH:mm")</td>
+    <td style='text-align:center;vertical-align:middle'>@Model.AccountName</td>
+    <td style='text-align:center;vertical-align:middle'>@Model.FullName</td>
+    <td style='text-align:center;vertical-align:middle'>@Model.PhoneNumber</td>
+    <td style='text-align:center;vertical-align:middle'>@Model.GameAccount</td>
+    <td style='text-align:center;vertical-align:middle'>@Model.Email</td>
+    <td style='text-align:center;vertical-align:middle'>@Model.Credit.ToString("N0")</td>
+    <td style='text-align:center;vertical-align:middle'>@Model.GameLevel</td>
+    <td style='text-align:center;vertical-align:middle'>@Model.PercentOfLevelUp</td>
+    <td style='text-align:center;vertical-align:middle'>@Model.LastIPAddress</td>
+    <td style='text-align:center;vertical-align:middle'>
+        @if (Model.isVerifiedGameAccount)
+        {
+            <i class='fa fa-check' style='color:green' aria-hidden='true'></i>
+        }
+    </td>
+    <td style='text-align:center;vertical-align:middle'>
+        @if (Model.isBlock)
+        {
+            <i class='fa fa-check' style='color:green' aria-hidden='true'></i>
+        }
+    </td>
+    <td style='text-align:center;vertical-align:middle'>
+        <div class='btn-group'>
+            <button class='btnEdit btn btn-primary btn-sm' data-id='@Model.Id'><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Chỉnh sửa</button>
+            <button class='btnResetPassword btn btn-warning btn-sm' data-id='@Model.Id'><i class='fa fa-refresh' aria-hidden='true'></i> Đặt lại Password</button>
+        </div>
+    </td>
+</tr>

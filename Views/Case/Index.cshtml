@@ -1,0 +1,258 @@
+﻿@{
+    ViewBag.Title = "Case";
+    Dictionary<int, string> status = (Dictionary<int, string>)ViewBag.Status;
+}
+
+<input id="ipRole" value="@(User.IsInRole("0")?0:1)" hidden />
+@section header{
+    <div class="pl-2"><h5 class="mb-0" style="color:#f60"><i class="fa fa-caret-right" aria-hidden="true"></i> @ViewBag.Title</h5></div>
+}
+<div class="d-flex justify-content-between p-2" style="background-color:#f2f2f2">
+    <div>
+        @if (User.IsInRole("actionCase"))
+        {
+            <button class="btn btn-primary btn-sm" id="btnAdd"><i class="fa fa-plus" aria-hidden="true"></i> Thêm mới</button>
+        }
+    </div>
+    <div class="d-flex flex-row">
+        <label class="d-flex flex-row mb-0 align-items-center ml-2">
+            <i>Trạng thái:</i>
+            <select id="slbStatus" class="form-control-sm form-control d-block ml-2" style="width:150px">
+                <option>Tất cả</option>
+                @foreach (var item in status)
+                {
+                    <option value="@item.Key" @(item.Key == 0 ? "selected" : "")>@item.Value</option>
+                }
+            </select>
+        </label>
+        <div class="input-group input-group-sm ml-2" style="width:320px">
+            <input type="text" class="form-control" id="searchText" placeholder="Nhập từ khóa tìm kiếm" />
+            <div class="input-group-append">
+                <button class="btn btn-primary btn-sm" type="button" id="btnSearch"><i class="fa fa-search" aria-hidden="true"></i> Search</button>
+                <button class="btn btn-danger btn-sm" type="button" id="btnClearSearch"><i class="fa fa-close" aria-hidden="true"></i> Clear</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="table" class="m-2 flex-grow-1 position-relative d-flex flex-column overflow-auto">
+    @*Render table*@
+</div>
+<div class="modal fade" id="modalDetail" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm mới</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="word-break:break-word"></div>
+        </div>
+    </div>
+</div>
+@section script{
+
+    <script type="text/javascript" src="~/Content/lightbox2/js/lightbox.min.js"></script>
+    <script type="text/javascript" src="~/signalr/hubs"></script>
+    <script>
+        $(document).ready(function () {
+            var chat = $.connection.realtimeHub;
+            chat.client.updateCountNotify = function (customer, nap, rut) {
+                if (customer > 0) {
+                    $("#customerStt").html("<span class='badge badge-danger'>" + customer + "</span>")
+                }
+                else $("#customerStt").empty();
+                if (nap > 0) {
+                    $("#napStt").html("<span class='badge badge-danger'>" + nap + "</span>")
+                }
+                else $("#napStt").empty();
+                if (rut > 0) {
+                    $("#rutStt").html("<span class='badge badge-danger'>" + rut + "</span>")
+                }
+                else $("#rutStt").empty();
+            };
+            chat.client.updateCountTicket = function (ticket) {
+                if (ticket > 0) $("#ticketStt").html("<span class='badge badge-danger'>" + ticket + "</span>");
+                else $("#ticketStt").empty();
+            }
+            $.connection.hub.start().done(function () {
+                dataBind();
+            });
+            $.connection.hub.disconnected(function () {
+                setTimeout(function () {
+                    $.connection.hub.start();
+                }, 5000); // Re-start connection after 5 seconds
+            });
+            lightbox.option({
+                'fadeDuration': 0,
+                'resizeDuration': 0,
+                'wrapAround': true
+            });
+            function dataBind() {
+                Loading.show("#table");
+                var currentPage = $(".page-item.active").attr("data-pagenum") ?? 1;
+                $.ajax({
+                    url: "/Case/GetViewByPage",
+                    method: "POST",
+                    data: {
+                        status: $("#slbStatus").val(),
+                        searchText: $("#searchText").val(),
+                        curPage: currentPage
+                    },
+                    error: function (err) {
+                        toastr.error(err);
+                        Loading.hide("#table");
+                    },
+                    success: function (rs) {
+                        Loading.hide("#table");
+                        $("#table").html(rs);
+                    }
+                });
+            };
+            function RenderCaseRow(caseId) {
+                $.ajax({
+                    url: "/Case/GetViewById",
+                    method: "POST",
+                    data: {
+                        Id: caseId,
+                        status: $("#slbStatus").val(),
+                        searchText: $("#searchText").val()
+                    },
+                    error: function (err) {
+                        toastr.error(err);
+                    },
+                    success: function (rs) {
+                        if ($("#table tbody tr[data-id='" + caseId + "']").length > 0) {
+                            $("#table tbody tr[data-id='" + caseId + "']").replaceWith(rs);
+                        }
+                        else {
+                            $("#table tbody").prepend(rs);
+                        }
+                    }
+                });
+            }
+            function Detail(Id) {
+                $.ajax({
+                    url: "/Case/Detail",
+                    method: "POST",
+                    data: {
+                        Id: Id
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    success: function (rs) {
+                        if (Id == null) {
+                            $("#modalDetail .modal-title").html("Thêm mới");
+                        } else {
+                            $("#modalDetail .modal-title").html("Cập nhật");
+                        }
+                        $("#modalDetail .modal-body").html(rs);
+                        $("#modalDetail").modal("show");
+                    }
+                });
+            };
+            dataBind();
+
+            $("#table").on("click", ".page-item", function () {
+                $(".pagination").children(".page-item").removeClass("active");
+                $(this).addClass("active");
+                dataBind();
+            });
+
+            $("#btnSearch").click(function () {
+                $(".page-item.active").attr("data-pagenum", 1);
+                dataBind();
+            });
+
+            $('#btnClearSearch').click(function () {
+                $('#searchText').val('');
+                $(".page-item.active").attr("data-pagenum", 1);
+                dataBind();
+            });
+
+            $("#searchText").bind("enterKey", function (e) {
+                $(".page-item.active").attr("data-pagenum", 1);
+                dataBind();
+            });
+
+            $("#searchText").keyup(function (e) {
+                if (e.keyCode == 13) {
+                    $(this).trigger("enterKey");
+                }
+            });
+
+            $("#slbStatus").change(function () {
+                $(".page-item.active").attr("data-pagenum", 1);
+                dataBind();
+            });
+
+            $("#btnAdd").click(function () {
+                Detail();
+            });
+
+            $("#table").on("click", ".btnEdit", function () {
+                Detail($(this).data("id"));
+            });
+
+            $("#table").on("click", "tr", function () {
+                $(this).attr("style", "background-color:#dee2e6").siblings().removeAttr("style");
+            });
+
+            $("#modalDetail").on("change", "input[name='UploadFile']", function () {
+                $("input[name='AttachFile']").val("");
+                var formData = new FormData();
+                formData.append('file', this.files[0]);
+                formData.append('customerId', $("input[name='CustomerId']").val());
+                $.ajax({
+                    type: 'POST',
+                    url: '/Case/UploadFile',
+                    data: formData,
+                    success: function (result) {
+                        if (result.success) {
+                            $("#modalDetail").find("input[name='AttachFile']").val(result.attachFile);
+                            $("#modalDetail").find("#preview").html("<img class='mt-2 d-block' style='max-height:250px;max-width:100%' src='" + result.attachFile + "?v=" + new Date().getTime() + "'/>");
+                        }
+                        else {
+                            $("#modalDetail").find("#preview").html("<span class='d-block text-danger mt-2'>" + result.message + "?v=" + new Date().getTime() + "</span>");
+                            $("#modalDetail").find("input[name='UploadFile']").val("");
+                        }
+                    },
+                    processData: false,
+                    contentType: false
+                });
+            });
+
+            $("#modalDetail").on("click", "#btnUpdateCase", function () {
+                let Id = $("input[name='Id']").val();
+                let Title = $("input[name='Title']").val();
+                let Detail = $("textarea[name='Detail']").val();
+                let AttachFile = $("input[name='AttachFile']").val();
+                let Comment = $("input[name='Comment']").val();
+                let Status = $("select[name='Status']").val();
+                $.ajax({
+                    type: 'POST',
+                    url: '/Case/Update',
+                    data: {
+                        Id: Id,
+                        Title: Title,
+                        Detail: Detail,
+                        AttachFile: AttachFile,
+                        Comment: Comment,
+                        Status: Status
+                    },
+                    success: function (result) {
+                        if (result.success) {
+                            toastr.success(result.message);
+                            RenderCaseRow(result.caseId);
+                            $("#modalDetail").modal("hide");
+                        }
+                        else {
+                            toastr.error(result.message);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+}

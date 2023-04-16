@@ -1,0 +1,127 @@
+﻿@using FT_Admin.Models
+@using FT_Admin.Models.Data
+@{
+    ViewBag.Title = "Chuyển tiền Techcombank";
+    List<BankList> bankLists = (List<BankList>)ViewBag.BankList;
+    tblBankAccount bankAccount = (tblBankAccount)ViewBag.bankAccount;
+}
+<input id="bankAccountId" value="@bankAccount.Id" hidden />
+<div class="p-4">
+    <div style="font-size:18px;">Tài khoản <strong class="text-danger">@(bankAccount.UserName)</strong></div>
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-body">
+                    <div>
+                        <img src="~/Content/Images/LogoBank/techcombank.png" height="30px" style="margin:auto;display:block;" />
+                    </div>
+                    <div class="mt-2">
+                        <label for="bankcode">Ngân hàng nhận:</label>
+                        <select class="form-control" id="bankcode" name="bankid">
+                            <option value="111111">Techcombank</option>
+                            @foreach (var i in bankLists)
+                            {
+                                <option value="@i.BankID">@i.BankName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mt-2">
+                        <label for="stkNhan">Số tài khoản nhận:</label>
+                        <input class="form-control" id="stkNhan" name="stkNhan" />
+                    </div>
+                    <div class="mt-2">
+                        <label for="money">Số tiền:</label>
+                        <input type="number" class="form-control" id="money" name="money" />
+                    </div>
+                    <div class="mt-2">
+                        <label for="note">Ghi chú(không dấu):</label>
+                        <input class="form-control" name="note" id="note" />
+                    </div>
+                    <button class="btn btn-success mt-3" id="btnOTP">Nhận OTP</button>
+                    <div id="frmConfirmTransfer">
+                        <div class="mt-2">
+                            <label>Mã giao dịch:</label>
+                            <input class="form-control" readonly name="signingCode" />
+                        </div>
+                        <div class="mt-2">
+                            <label>Người nhận:</label>
+                            <input class="form-control" readonly name="name" />
+                        </div>
+                        <input class="form-control" name="systemId" hidden />
+                        <div class="mt-2">
+                            <label>Mã OTP:</label>
+                            <input class="form-control" name="otp" />
+                        </div>
+
+                        <div class="mt-2">
+                            <button class="btn btn-success" id="btnConfirmTransfer">Đồng ý chuyển khoản</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section script{
+    <script>
+        $(document).ready(function () {
+            $("#frmConfirmTransfer").hide();
+            $("#btnOTP").on("click", function () {
+                $("#frmConfirmTransfer").hide();
+                $("input[name='signingCode']").val("");
+                $("input[name='name']").val("");
+                $("input[name='systemId']").val("");
+                $.ajax({
+                    url: "/Techcombank/GetOTP",
+                    method: "POST",
+                    data: {
+                        bankAccountId: $("#bankAccountId").val(),
+                        bankid: $("select[name='bankid']").val(),
+                        stkNhan: $("input[name='stkNhan']").val(),
+                        money: $("input[name='money']").val(),
+                        note: $("input[name='note']").val()
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            $("input[name='signingCode']").val(rs.data.SigningCode);
+                            $("input[name='name']").val(rs.data.name);
+                            $("input[name='systemId']").val(rs.data.systemId);
+                            $("#frmConfirmTransfer").show();
+                        }
+                        else {
+                            toastr.error(rs.message);
+                        }
+                    }
+                });
+            });
+            $("#btnConfirmTransfer").on("click", function () {
+                $.ajax({
+                    url: "/Techcombank/ConfirmOTP",
+                    method: "POST",
+                    data: {
+                        bankAccountId: $("#bankAccountId").val(),
+                        systemid: $("input[name='systemId']").val(),
+                        otp: $("input[name='otp']").val()
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            toastr.success("Chuyển tiền thành công!");
+                            setTimeout(function () {
+                                location.reload();
+                            }, 3000);
+                        }
+                        else {
+                            toastr.error(rs.message);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

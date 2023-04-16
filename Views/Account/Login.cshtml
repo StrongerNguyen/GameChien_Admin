@@ -1,0 +1,78 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = $"Login | {System.Configuration.ConfigurationManager.AppSettings["Website"]}";
+}
+@{ Layout = null;}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>@ViewBag.Title</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" type="text/css" href="~/Content/bootstrap.min.css" />
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+    <style>
+        html {
+            height: 100%;
+        }
+
+        body {
+            min-height: 100%;
+            position: relative;
+            background-color: #d4d4d4;
+        }
+
+        .wrapper {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+        }
+
+        .frmLogin {
+            width: 380px;
+            margin-top: 100px;
+        }
+
+        .card-body {
+            padding: 0.25rem 1.25rem;
+        }
+
+        .card-footer {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper d-flex justify-content-center">
+        <div class="center-block frmLogin">
+            <div class="card">
+                <div class="card-header">
+                    Login to <strong> @System.Configuration.ConfigurationManager.AppSettings["Website"]</strong>
+                </div>
+                <div class="card-body">
+                    <div style="color:red">@Html.ValidationSummary()</div>
+                    <form action="/Account/Login" method="post" id="frmLogin" name="frmLogin">
+                        <div class="form-group">
+                            <label for="UserName">UserName</label>
+                            <input class="form-control" type="text" name="UserName" id="UserName" placeholder="Username" />
+                        </div>
+                        <div class="form-group">
+                            <label for="Password">Password</label>
+                            <input class="form-control" type="password" name="Password" id="Password" placeholder="Password" autocomplete="on" />
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-success" type="submit" style="width:100%;">Sign In</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer">
+                    @System.Configuration.ConfigurationManager.AppSettings["Website"]
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

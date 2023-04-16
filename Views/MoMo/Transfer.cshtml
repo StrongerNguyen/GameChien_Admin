@@ -1,0 +1,261 @@
+﻿@using FT_Admin.Models.Data
+@using System.Web.Script.Serialization
+@{
+    ViewBag.Title = "Chuyển tiền MoMo";
+    tblBankAccount bankAccount = (tblBankAccount)ViewBag.bankAccount;
+}
+<input id="bankAccountId" value="@bankAccount.Id" hidden />
+
+<div class="p-4">
+    <div style="font-size:18px;">Tài khoản <strong class="text-danger">@(bankAccount.UserName)</strong></div>
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-header">
+                    Chuyển tiền sang tài khoản MoMo khác
+                </div>
+                <div class="card-body">
+                    <div>
+                        <label for="ToMoMo_Phone">Số điện thoại MoMo nhận:</label>
+                        <input class="form-control" id="ToMoMo_Phone" name="ToMoMo_Phone" />
+                    </div>
+                    <div class="mt-2">
+                        <label for="ToMoMo_Amount">Số tiền:</label>
+                        <input class="form-control" type="number" id="ToMoMo_Amount" name="ToMoMo_Amount" />
+                    </div>
+                    <div class="mt-2">
+                        <label for="ToMoMo_Note">Ghi chú(không dấu):</label>
+                        <input class="form-control" id="ToMoMo_Note" name="ToMoMo_Note" />
+                    </div>
+                    <button class="btn btn-primary mt-3" type="button" id="btnCreateTransferToMoMo">
+
+                        Tạo giao dịch
+                    </button>
+                    <div class="mt-2">
+                        <label>Người nhận:</label>
+                        <input class="form-control" readonly id="ToMoMo_Name" />
+                    </div>
+                    <input class="form-control" id="ToMoMo_id" hidden />
+                    <button class="btn btn-success mt-3" id="btnConfirmTransferToMoMo">Xác nhận chuyển khoản</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-header">
+                    Chuyển tiền sang ngân hàng
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="ToBank_bank">Ngân hàng nhận:</label>
+                        <select class="form-control" id="ToBank_bank" name="ToBank_bank">
+                            @*@foreach (var i in bankLists)
+                                {
+                                    <option value="@(new JavaScriptSerializer().Serialize(i))">@(i.shortBankName + "-" + i.bankName)</option>
+                                }*@
+                        </select>
+                    </div>
+                    <div class="mt-2">
+                        <label for="ToBank_cardNumber">Số tài khoản/Số thẻ:</label>
+                        <input class="form-control" id="ToBank_cardNumber" name="ToBank_cardNumber" />
+                    </div>
+                    @*<div class="mt-2">
+                            <label for="ToBank_cardName">Tên trên thẻ:</label>
+                            <input class="form-control" id="ToBank_cardName" name="ToBank_cardName" />
+                        </div>*@
+                    <div class="mt-2">
+                        <label for="ToBank_amount">Số tiền:</label>
+                        <input type="number" class="form-control" id="ToBank_amount" name="ToBank_amount" />
+                    </div>
+                    <div class="mt-2">
+                        <label for="ToBank_note">Ghi chú(không dấu):</label>
+                        <input class="form-control" name="ToBank_note" id="ToBank_note" />
+                    </div>
+                    <button class="btn btn-primary mt-3" id="btnCreateTransferToBank">Tạo giao dịch</button>
+                    @*<div class="mt-2">
+                            <label>Người nhận:</label>
+                            <input class="form-control" readonly name="ToBank_name" />
+                        </div>*@
+                    <input class="form-control" name="ToBank_id" hidden />
+                    <input class="form-control" name="ToBank_extras" hidden />
+                    <br />
+                    <button class="btn btn-success mt-3" id="btnConfirmTransferToBank">Xác nhận chuyển khoản</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section script{
+    <script>
+        $(document).ready(function () {
+            //getBankList
+            $.ajax({
+                method: "POST",
+                url: "/MoMo/getBankList",
+                data: {
+                    bankAccountId: $("#bankAccountId").val()
+                },
+                beforeSend: function () {
+                    $("#ToBank_bank").attr("disabled", "disabled");
+                },
+                error: function (ex) {
+                    toastr.error(ex);
+                },
+                complete: function () {
+                    $("#ToBank_bank").removeAttr("disabled");
+                },
+                success: function (rs) {
+                    if (rs.success) {
+                        $.each(rs.data, function (index, value) {
+                            $("#ToBank_bank").append("<option value='" + JSON.stringify(value) + "'>" + value.shortBankName + " - " + value.bankName + "</option>");
+                        });
+                    }
+                    else {
+                        toastr.error(rs.message);
+                    }
+                }
+            });
+            $("#btnCreateTransferToMoMo").click(function () {
+                $.ajax({
+                    method: "POST",
+                    url: "/MoMo/CreateTransferToMoMo",
+                    data: {
+                        bankAccountId: $("#bankAccountId").val(),
+                        phone: $("input[name='ToMoMo_Phone']").val(),
+                        amount: $("input[name='ToMoMo_Amount']").val(),
+                        note: $("input[name='ToMoMo_Note']").val()
+                    },
+                    beforeSend: function () {
+                        $("#btnCreateTransferToMoMo").attr("disabled", "disabled");
+                        $("#btnCreateTransferToMoMo").html("<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> Đang tạo giao dịch...");
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    complete: function () {
+                        $("#btnCreateTransferToMoMo").removeAttr("disabled");
+                        $("#btnCreateTransferToMoMo").html("Tạo giao dịch");
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            $("#ToMoMo_Name").val(rs.data.name);
+                            $("#ToMoMo_id").val(rs.data.id);
+                            toastr.success("Tạo giao dịch thành công!");
+                        }
+                        else {
+                            toastr.error(rs.message);
+                        }
+                    }
+                });
+            });
+            $("#btnConfirmTransferToMoMo").click(function () {
+                $.ajax({
+                    method: "POST",
+                    url: "/MoMo/ConfirmTransferToMoMo",
+                    data: {
+                        bankAccountId: $("#bankAccountId").val(),
+                        id: $("#ToMoMo_id").val()
+                    },
+                    beforeSend: function () {
+                        $("#btnConfirmTransferToMoMo").attr("disabled", "disabled");
+                        $("#btnConfirmTransferToMoMo").html("<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> Đang thực hiện chuyển khoản...");
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    complete: function () {
+                        $("#btnConfirmTransferToMoMo").removeAttr("disabled");
+                        $("#btnConfirmTransferToMoMo").html("Xác nhận chuyển khoản");
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            toastr.success("Chuyển tiền thành công!");
+                            setTimeout(function () {
+                                location.reload();
+                            }, 3000);
+                        }
+                        else {
+                            toastr.error(rs.message);
+                        }
+                    }
+                });
+            });
+            $("#btnCreateTransferToBank").click(function () {
+                $.ajax({
+                    method: "POST",
+                    url: "/MoMo/CreateTransferToBank",
+                    data: {
+                        bankAccountId: $("#bankAccountId").val(),
+                        bankObject: $("select[name='ToBank_bank']").val(),
+                        cardNumber: $("input[name='ToBank_cardNumber']").val(),
+                        //cardName: $("input[name='ToBank_cardName']").val(),
+                        amount: $("input[name='ToBank_amount']").val(),
+                        note: $("input[name='ToBank_note']").val()
+                    },
+                    beforeSend: function () {
+                        $("#btnCreateTransferToBank").attr("disabled", "disabled");
+                        $("#btnCreateTransferToBank").html("<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> Đang tạo giao dịch...");
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    complete: function () {
+                        $("#btnCreateTransferToBank").removeAttr("disabled");
+                        $("#btnCreateTransferToBank").html("Tạo giao dịch");
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            //$("input[name='ToBank_name']").val(rs.data.name);
+                            $("input[name='ToBank_id']").val(rs.data.id);
+                            $("input[name='ToBank_extras']").val(rs.data.extras);
+                            toastr.success("Tạo giao dịch thành công!");
+                        }
+                        else {
+                            toastr.error(rs.message);
+                        }
+                    }
+                });
+            });
+            $("#btnConfirmTransferToBank").click(function () {
+                $.ajax({
+                    method: "POST",
+                    url: "/MoMo/ConfirmTransferToBank",
+                    data: {
+                        bankAccountId: $("#bankAccountId").val(),
+                        id: $("input[name='ToBank_id']").val(),
+                        bankObject: $("select[name='ToBank_bank']").val(),
+                        cardNumber: $("input[name='ToBank_cardNumber']").val(),
+                        //cardName: $("input[name='ToBank_cardName']").val(),
+                        amount: $("input[name='ToBank_amount']").val(),
+                        note: $("input[name='ToBank_note']").val(),
+                        extras: $("input[name='ToBank_extras']").val()
+                    },
+                    beforeSend: function () {
+                        $("#btnConfirmTransferToBank").attr("disabled", "disabled");
+                        $("#btnConfirmTransferToBank").html("<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> Đang thực hiện chuyển khoản...");
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    complete: function () {
+                        $("#btnConfirmTransferToBank").removeAttr("disabled");
+                        $("#btnConfirmTransferToBank").html("Xác nhận chuyển khoản");
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            toastr.success("Chuyển tiền thành công!");
+                            setTimeout(function () {
+                                location.reload();
+                            }, 3000);
+                        }
+                        else {
+                            toastr.error(rs.message);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

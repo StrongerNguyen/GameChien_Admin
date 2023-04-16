@@ -1,0 +1,36 @@
+﻿@using FT_Admin.Models.ViewModel
+@model FT_Admin.Models.Data.tblUser
+@{
+    List<RoleViewModel> ListRole = (List<RoleViewModel>)ViewBag.ListRole;
+}
+<div>
+    <div class="d-flex flex-column">
+        @Html.TextBoxFor(t => t.Id, new { hidden = "hidden" })
+        <label>
+            <i>UserName</i>
+            @Html.TextBoxFor(t => t.UserName, new { @class = "form-control" })
+        </label>
+        <label>
+            <i>Password</i>
+            @Html.TextBoxFor(t => t.PassWord, new { @class = "form-control" })
+        </label>
+        <label>
+            <i>FullName</i>
+            @Html.TextBoxFor(t => t.FullName, new { @class = "form-control" })
+        </label>
+        <label>
+            <i>RoleName</i>
+            <select class="form-control" name="RoleName">
+                @foreach (var r in ListRole)
+                {
+                    <option @((!string.IsNullOrEmpty(Model.RoleName) && Model.RoleName.Equals(r.Name)) ? "selected" : "") value="@r.Name">@(r.Name+" - "+r.Description)</option>
+                }
+            </select>
+        </label>
+        <label>
+            <i>isActive</i>
+            @Html.CheckBoxFor(t => t.isActive, new { @class = "form-control" })
+        </label>
+        <button type="button" id="btnUpdate" class="btn btn-success d-block mx-auto mt-2">@(Model.Id==Guid.Empty?"Thêm mới":"Cập nhật")</button>
+    </div>
+</div>

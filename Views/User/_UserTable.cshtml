@@ -1,0 +1,72 @@
+﻿@model List<FT_Admin.Models.ViewModel.UserViewModel>
+<div class="flex-grow-1 overflow-auto">
+    <table class="table table-hover table-sm table-responsive-sm table-bordered overflow-auto ">
+        <thead>
+            <tr>
+                <th width="100px" style="text-align: center">UserName</th>
+                <th width="250px" style="text-align: center">Password</th>
+                <th width="250px" style="text-align: center">FullName</th>
+                <th width="250px" style="text-align: center">RoleName</th>
+                <th width="250px" style="text-align: center">isActive</th>
+                <th width="250px" style="text-align: center">Action</th>
+            </tr>
+        </thead>
+        <tbody id="tblBody">
+            @foreach (var item in Model)
+            {
+                <tr data-id='@item.Id'>
+                    <td class="align-middle text-center">@item.UserName</td>
+                    <td class="align-middle text-center">@item.PassWord</td>
+                    <td class="align-middle text-center">@item.FullName</td>
+                    <td class="align-middle text-center">@item.RoleName</td>
+                    <td class="align-middle text-center"><input type="checkbox" @(item.isActive ? "checked" : "") /></td>
+                    <td class="text-center align-middle">
+                        <button class="btn btn-success btnUserPermission" data-id="@item.Id"><i class='fa fa-magic' aria-hidden='true'></i> Phân quyền</button>
+                        <button class="btn btn-primary btnEdit ml-2" data-id="@item.Id"><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Sửa</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="d-flex align-items-center justify-content-center" style="background-color:#f2f2f2">
+    <nav aria-label="...">
+        <ul class="pagination justify-content-center flex-wrap m-1">
+            @{
+                int maxPage = (int)ViewBag.maxPage;
+
+                int curPage = (int)ViewBag.curPage;
+                if (curPage > 3)
+                {
+                    <li class='page-item' data-pagenum='1'><a class='page-link' href='#'>First - 1</a></li>
+                }
+                if (curPage > 4)
+                {
+                    <li class='page-item' data-pagenum='@(curPage-1)'><a class='page-link' href='#'>Prev</a></li>
+                }
+                for (var i = 1; i <= maxPage; i++)
+                {
+                    if (i == curPage)
+                    {
+                        <li class='page-item active' data-pagenum='@i'><a class='page-link' href='#'>@i</a></li>
+                    }
+                    else
+                    {
+                        if (i > curPage - 3 && i < curPage + 3)
+                        {
+                            <li class='page-item' data-pagenum='@i'><a class='page-link' href='#'>@i</a></li>
+                        }
+                    }
+                }
+                if (curPage < maxPage - 3)
+                {
+                    <li class='page-item' data-pagenum='@(curPage+1)'><a class='page-link' href='#'>Next</a></li>
+                }
+                if (curPage < maxPage - 2)
+                {
+                    <li class='page-item' data-pagenum='@maxPage'><a class='page-link' href='#'>Last - @maxPage</a></li>
+                }
+            }
+        </ul>
+    </nav>
+</div>

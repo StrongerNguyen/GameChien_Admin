@@ -1,0 +1,21 @@
+﻿@model FT_Admin.Models.ViewModel.WithdrawViewModel
+<tr data-id='@Model.Id'>
+    <td style='text-align:center;vertical-align:middle'>@Model.CreatedTime.ToString("dd/MM HH:mm")</td>
+    <td style='text-align:center;vertical-align:middle'>@Model.AccountName </td>
+    <td style='text-align:center;vertical-align:middle'>@Model.PhoneNumber</td>
+    <td style='text-align:center;vertical-align:middle'>@Model.BankName</td>
+    <td style='text-align:center;vertical-align:middle'>@Model.BankAccountNumber</td>
+    <td style='text-align:center;vertical-align:middle'>@Model.BankFullName</td>
+    <td style='text-align:center;vertical-align:middle'>@Model.Amount.ToString("N0")</td>
+    <td style='text-align:center;vertical-align:middle'>@Model.Status</td>
+    <td style='text-align:center;vertical-align:middle'>
+        @if (Model.Status == null)
+        {
+            <button class='btn btn-sm p-2 btn-primary' data-id='@Model.Id'><b>Xử lý</b></button>
+        }
+        else
+        {
+            <b class='@(Model.Status.Value?"text-success":"text-danger")'>@(Model.Status.Value?"YES":"NO")</b>
+        }
+    </td>
+</tr>

@@ -1,0 +1,144 @@
+﻿@using FT_Admin.Models.Data
+@model List<tblPrompt>
+@{
+    ViewBag.Title = "Thông báo";
+}
+@section header{
+    <div class="pl-2"><h5 class="mb-0" style="color:#f60"><i class="fa fa-caret-right" aria-hidden="true"></i> @ViewBag.Title</h5></div>
+}
+<div class="d-flex justify-content-between p-2" style="background-color:#f2f2f2">
+    <button class="btn btn-primary btn-sm" onclick="Detail()"><i class="fa fa-plus" aria-hidden="true"></i> Thêm mới</button>
+</div>
+<div class="section m-2 flex-grow-1 overflow-auto position-relative">
+    <table class="table table-hover table-sm table-responsive-sm table-bordered overflow-auto ">
+        <thead>
+            <tr>
+                <th width="150px" style="text-align: center;width:50%">Nội dung</th>
+                <th width="100px" style="text-align: center">Hình ảnh</th>
+                <th width="100px" style="text-align: center">Trang</th>
+                <th width="100px" style="text-align: center">Thời gian tạo</th>
+                <th width="100px" style="text-align: center">Người tạo</th>
+                <th width="100px" style="text-align: center">Trạng thái</th>
+                @if (User.IsInRole("0"))
+                {
+                    <th width="100px" style="text-align: center">Xử lý</th>
+                }
+            </tr>
+        </thead>
+        <tbody id="tblBody">
+            @foreach (var prompt in Model)
+            {
+                <tr>
+                    <td>@Html.Raw(prompt.Content)</td>
+                    <td style="text-align:center">
+                        @if (!string.IsNullOrEmpty(prompt.Image))
+                        {
+                            <img src="@prompt.Image" style="max-height:100px" />
+                        }
+                    </td>
+                    <td>@prompt.PageRoute</td>
+                    <td>@prompt.CreatedTime</td>
+                    <td>@prompt.CreatedBy</td>
+                    <td>@prompt.isActive</td>
+                    <td style="text-align:center">
+                        <button class="btn btn-primary" onclick="Detail('@prompt.Id')"><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Sửa</button>
+                        <button class="btn btn-danger" onclick="Delete('@prompt.Id')"><i class='fa fa-remove' aria-hidden='true'></i> Xóa</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="d-flex align-items-center justify-content-center" style="background-color:#f2f2f2">
+    <nav aria-label="...">
+        <ul class="pagination justify-content-center flex-wrap m-2">
+        </ul>
+    </nav>
+</div>
+<div class="modal fade" id="modalDetail" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm mới</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="word-break:break-word"></div>
+        </div>
+    </div>
+</div>
+@section script{
+    <script src="~/Content/ckeditor/ckeditor.js"></script>
+    <script>
+        
+        function Detail(Id) {
+            $.ajax({
+                url: "/Prompt/Detail",
+                method: "POST",
+                data: {
+                    Id: Id
+                },
+                error: function (ex) {
+                    toastr.error(ex);
+                },
+                success: function (rs) {
+                    if (Id == undefined) {
+                        $("#modalDetail .modal-title").html("Thêm mới");
+                    } else {
+                        $("#modalDetail .modal-title").html("Cập nhật");
+                    }
+                    $("#modalDetail .modal-body").html(rs);
+                    CKEDITOR.replace('Content');
+                    $("#modalDetail").modal("show");
+                }
+            });
+        }
+        function Delete(Id) {
+            $.ajax({
+                url: "/Prompt/Delete",
+                method: "POST",
+                data: {
+                    Id: Id
+                },
+                error: function (ex) {
+                    toastr.error(ex);
+                },
+                success: function (rs) {
+                    if (rs.success) {
+                        Alert.Success("Thành công", "Xóa thành công", () => {
+                            setTimeout(function () { location.reload() }, 1000);
+                        });
+                    }
+                    else {
+                        Alert.Error("Thất bại", rs.message);
+                    }
+                }
+            });
+        }
+        $("#modalDetail").on("change", "input[name='UploadFile']", function () {
+            $("#modalDetail input[name='Image']").val("");
+            var formData = new FormData();
+            formData.append('fileUpload', this.files[0]);
+            formData.append('PageRoute', $("#modalDetail select[name='PageRoute']").val());
+            $.ajax({
+                type: 'POST',
+                url: '/Prompt/Upload',
+                data: formData,
+                headers: "jsonp",
+                success: function (result) {
+                    if (result.success) {
+                        $("#modalDetail input[name='Image']").val(result.attachFile);
+                        $("#modalDetail #preview").append("<img class='my-2 d-block' style='max-width:200px' src='" + result.attachFile + "?v=" + new Date().getTime() + "'/>");
+                    }
+                    else {
+                        $("#modalDetail #preview").html("<span class='d-block text-red-500 font-medium text-sm my-2'>" + result.message + "</span>");
+                        $("#modalDetail input[name='Image']").val("");
+                    }
+                },
+                processData: false,
+                contentType: false,
+            });
+        });
+    </script>
+}

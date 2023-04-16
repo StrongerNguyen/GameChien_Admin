@@ -1,0 +1,79 @@
+﻿@using FT_Admin.Models.ViewModel
+@model List<TransactionViewModel>
+<div class="flex-grow-1 overflow-auto">
+    <table class="table table-hover table-bordered table-sm table-responsive-sm m-0" style="width:100%">
+        <thead>
+            <tr>
+                <th class="text-center" style="width: 8%" data-order="From">FROM</th>
+                <th class="text-center" style="width: 8%" data-order="BankName">BANK</th>
+                <th class="text-center" style="width: 8%" data-order="TransactionDate">DATE</th>
+                <th class="text-center" style="width: 8%" data-order="From">TIME</th>
+                <th class="text-center" data-order="Description">CONTENT</th>
+                <th class="text-center" style="width: 8%" data-order="Description">PHONE</th>
+                <th class="text-center" style="width: 8%" data-order="Amount">AMOUNT</th>
+                <th class="text-center" style="width: 8%" data-order="Status">STATUS</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tran in Model)
+            {
+                <tr data-id='@tran.Id'>
+                    <td class="text-center align-middle">@tran.GetBy</td>
+                    <td class="text-center align-middle">@tran.BankName</td>
+                    <td class="text-center align-middle">@tran.TransactionDate</td>
+                    <td class="text-center align-middle">@tran.TransactionTime</td>
+                    <td class="align-middle" style="overflow-wrap:anywhere">@tran.Description</td>
+                    <td class="text-center align-middle"><b>@tran.PhoneNumber</b></td>
+                    <td class="text-center align-middle">
+                        <b class="@(tran.CD == "-" ? "text-danger" : (tran.CD == "+" ? "text-success" : ""))">@(string.IsNullOrEmpty(tran.CD)?tran.Amount.ToString():$"{tran.CD}{tran.Amount.ToString("N0") ?? ""}")</b>
+                    </td>
+                    <td class="text-center align-middle">
+                        @if (tran.DepositId != null)
+                        {
+                            <b class="text-success">Đã cộng điểm</b>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<nav aria-label="..." style="background-color:#f2f2f2">
+    <ul class="pagination justify-content-center flex-wrap m-1">
+        @{
+            int maxPage = (int)ViewBag.maxPage;
+
+            int curPage = (int)ViewBag.curPage;
+            if (curPage > 3)
+            {
+                <li class='page-item' data-pagenum='1'><a class='page-link' href='#'>First - 1</a></li>
+            }
+            if (curPage > 4)
+            {
+                <li class='page-item' data-pagenum='@(curPage-1)'><a class='page-link' href='#'>Prev</a></li>
+            }
+            for (var i = 1; i <= maxPage; i++)
+            {
+                if (i == curPage)
+                {
+                    <li class='page-item active' data-pagenum='@i'><a class='page-link' href='#'>@i</a></li>
+                }
+                else
+                {
+                    if (i > curPage - 3 && i < curPage + 3)
+                    {
+                        <li class='page-item' data-pagenum='@i'><a class='page-link' href='#'>@i</a></li>
+                    }
+                }
+            }
+            if (curPage < maxPage - 3)
+            {
+                <li class='page-item' data-pagenum='@(curPage+1)'><a class='page-link' href='#'>Next</a></li>
+            }
+            if (curPage < maxPage - 2)
+            {
+                <li class='page-item' data-pagenum='@maxPage'><a class='page-link' href='#'>Last - @maxPage</a></li>
+            }
+        }
+    </ul>
+</nav>

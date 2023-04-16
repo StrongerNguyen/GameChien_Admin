@@ -1,0 +1,35 @@
+﻿@model FT_Admin.Models.Data.tblBankConfig
+<form method="post" action="/BankConfig/Update">
+    @Html.TextBoxFor(t => t.Id, new { @class = "d-none" })
+    <table class="table table-bordered table-hover">
+        <tr>
+            <td><label for="BankName">BankName</label></td>
+            <td>@Html.TextBoxFor(t => t.BankName, new { @class = "form-control" })</td>
+        </tr>
+        <tr>
+            <td><label for="isUseOTPInLogin">Bank API sử dụng OTP khi đăng nhập</label></td>
+            <td>@Html.CheckBoxFor(t => t.isUseOTPInLogin)</td>
+        </tr>
+        <tr>
+            <td><label for="isUseAccountNumberInLogin">Bank API sử dụng Số tài khoản khi đăng nhập</label></td>
+            <td>@Html.CheckBoxFor(t => t.isUseAccountNumberInLogin)</td>
+        </tr>
+        <tr>
+            <td><label for="isUseSMS">Nhận biến động bằng SMS</label></td>
+            <td>@Html.CheckBoxFor(t => t.isUseSMS)</td>
+        </tr>
+        <tr>
+            <td><label for="isUseAPI">Nhận biến động bằng API</label></td>
+            <td>@Html.CheckBoxFor(t => t.isUseAPI)</td>
+        </tr>
+        <tr>
+            <td><label for="isUseNotify">Nhận biến động bằng Notify</label></td>
+            <td>@Html.CheckBoxFor(t => t.isUseNotify)</td>
+        </tr>
+        <tr>
+            <td><label for="isActive">Kích hoạt</label></td>
+            <td>@Html.CheckBoxFor(t => t.isActive)</td>
+        </tr>
+    </table>
+    <button type="submit" class="btn btn-success d-block mx-auto">@(Model==null?"Thêm mới":"Cập nhật")</button>
+</form>

@@ -1,0 +1,444 @@
+﻿@using FT_Admin.Models
+@model List<CustomerDto>
+@{
+    ViewBag.Title = "Yêu cầu rút tiền";
+}
+@section header{
+    <div class="pl-2"><h5 class="mb-0" style="color:#f60"><i class="fa fa-caret-right" aria-hidden="true"></i> @ViewBag.Title</h5></div>
+}
+<div class="d-flex justify-content-end p-2 justify-content-between" style="background-color:#f2f2f2">
+    <div class="d-flex align-items-center">
+    </div>
+    <div class="d-flex flex-row">
+        <label class="d-flex flex-row mb-0 align-items-center">
+            <span>Ngày</span>
+            <input class="form-control form-control-sm  ml-2" type="date" id="ipDateFilter" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+        </label>
+        <label class="d-flex flex-row mb-0 align-items-center ml-2">
+            <span>Trạng thái</span>
+            <select id="slbStatusFilter" class="form-control-sm form-control d-block ml-2" style="width:150px">
+                <option value="" selected>CHƯA XỬ LÝ</option>
+                <option value="all">ALL</option>
+                <option value="yes">YES</option>
+                <option value="no">NO</option>
+            </select>
+        </label>
+        <div class="input-group input-group-sm ml-2" style="width:320px">
+            <input type="text" class="form-control" id="searchtext" placeholder="Nhập từ khóa tìm kiếm" />
+            <div class="input-group-append">
+                <button class="btn btn-primary btn-sm" type="button" id="btnSearch"><i class="fa fa-search" aria-hidden="true"></i> Search</button>
+                <button class="btn btn-danger btn-sm" type="button" id="btnClearSearch"><i class="fa fa-close" aria-hidden="true"></i> Clear</button>
+            </div>
+        </div>
+        @if (User.IsInRole("exportExcel"))
+        {
+            <button class="btn btn-sm btn-success ml-2 text-nowrap" id="btnExportExcel"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+        }
+    </div>
+</div>
+<div id="table" class="m-2 flex-grow-1 position-relative d-flex flex-column overflow-auto">
+    @*Render table*@
+</div>
+<div class="modal fade" id="modalUpdateStatus" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-primary">Chi tiết lệnh RÚT</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="word-break:break-word"></div>
+        </div>
+    </div>
+</div>
+<audio id="audioTag" src="~/Content/audio/tingting.mp3">
+    <p>This browser does not support audio.</p>
+</audio>
+@section script{
+    <script type="text/javascript" src="~/signalr/hubs"></script>
+    <script type="text/javascript" src="~/Scripts/pagination.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/moment.min.js"></script>
+    <script type="text/javascript" src="~/Content/lightbox2/js/lightbox.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            //load data
+            var chat = $.connection.realtimeHub;
+            function dataBind() {
+                Loading.show("#table");
+                $.ajax({
+                    url: "/Withdraw/GetAll",
+                    method: "POST",
+                    data: {
+                        searchText: $("#searchtext").val(),
+                        statusFilter: $("#slbStatusFilter").val(),
+                        dateFilter: $('#ipDateFilter').val(),
+                        curPage: $(".page-item.active").attr("data-pagenum") ?? 1
+                    },
+                    error: function (err) {
+                        Loading.hide("#table");
+                        toastr.error(err);
+                    },
+                    success: function (rs) {
+                        Loading.hide("#table");
+                        $("#table").html(rs);
+                    }
+                });
+            };
+            $("#table").on("click", ".page-item", function () {
+                $(".pagination").children(".page-item").removeClass("active");
+                $(this).addClass("active");
+                dataBind();
+            });
+            chat.client.updateCustomerRequest = function (customerRequestId) {
+                RenderRow(customerRequestId);
+            }
+            chat.client.updateCountNotify = function (customer, nap, rut) {
+                if (customer > 0) {
+                    $("#customerStt").html("<span class='badge badge-danger'>" + customer + "</span>")
+                }
+                else $("#customerStt").empty();
+                if (nap > 0) {
+                    $("#napStt").html("<span class='badge badge-danger'>" + nap + "</span>")
+                }
+                else $("#napStt").empty();
+                if (rut > 0) {
+                    $("title").text("Rút $ (" + rut + ")");
+                    $("#rutStt").html("<span class='badge badge-danger'>" + rut + "</span>");
+                }
+                else {
+                    $("title").text("Rút $");
+                    $("#rutStt").empty();
+                }
+            };
+            chat.client.updateCountTicket = function (ticket) {
+                if (ticket > 0) $("#ticketStt").html("<span class='badge badge-danger'>" + ticket + "</span>");
+                else $("#ticketStt").empty();
+            }
+            chat.client.updateTotalWithdraw = function () {
+                var htmlByBank = "";
+                $.ajax({
+                    url: "/Withdraw/getTotalYes",
+                    method: "GET",
+                    data: {
+                        dateFilter: $('#ipDateFilter').val()
+                    },
+                    beforeSend: function () {
+                        $("#txtTotal").text("Getting");
+                        $("#TotalCashoutByBank").html("");
+                    },
+                    success: function (rs) {
+                        if (rs != null) {
+                            $("#txtTotal").text(rs.total + " K");
+                            for (var i in rs.byBank) {
+                                htmlByBank += "<div class='mx-1'><span>" + i + "</span>: <b class='text-danger'>" + rs.byBank[i] + " K</b></div>";
+                            }
+                            $("#TotalCashoutByBank").html(htmlByBank);
+                        }
+                    }
+                });
+            };
+            $.connection.hub.start().done(function () {
+                dataBind();
+            });
+            $.connection.hub.disconnected(function () {
+                setTimeout(function () {
+                    $.connection.hub.start();
+                }, 5000); // Re-start connection after 5 seconds
+            });
+
+            function GetById(Id) {
+                $.ajax({
+                    url: "/Withdraw/GetById",
+                    method: "POST",
+                    data: {
+                        Id: Id,
+                        searchText: $("#searchtext").val(),
+                        statusFilter: $("#slbStatusFilter").val(),
+                        dateFilter: $('#ipDateFilter').val()
+                    },
+                    error: function (err) {
+                        toastr.error(err);
+                    },
+                    success: function (rs) {
+                        if (rs.success != null && rs.success != undefined && !rs.success) {
+                            toastr.error(rs.message);
+                        }
+                        else {
+                            if ($("#table tbody tr[data-id='" + Id + "']").length > 0) {
+                                $("#table tbody tr[data-id='" + Id + "']").replaceWith(rs);
+                            }
+                            else {
+                                $("#table tbody").prepend(rs);
+                            }
+                        }
+                    }
+                });
+            };
+            $("#table").on("click", "tbody tr button", function () {
+                Alert.Loading();
+                let id = $(this).data("id");
+                $.ajax({
+                    url: "/Withdraw/Detail",
+                    method: "POST",
+                    data: {
+                        customerRequestId: id
+                    },
+                    error: function (err) {
+                        Alert.Error(null, err);
+                    },
+                    success: function (rs) {
+                        Alert.Hide();
+                        if (rs.message != undefined) {
+                            Alert.Error(null, rs.message);
+                        }
+                        else {
+                            $("#modalUpdateStatus .modal-body").html(rs);
+                            $("#modalUpdateStatus").modal("show");
+                        }
+                    }
+                });
+            });
+            $("#modalUpdateStatus").on("click", "#btnSubtractPoint", function () {
+                $(this).addClass("d-none");
+                Alert.Loading();
+                let id = $(this).data("id");
+                $.ajax({
+                    url: "/Withdraw/SubtractPoint",
+                    method: "POST",
+                    data: {
+                        customerRequestid: id
+                    },
+                    error: function (err) {
+                        Alert.Error(err);
+                        $("#modalUpdateStatus").find("#btnSubtractPoint").removeClass("d-none");
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            $("#modalUpdateStatus").find("#pnYesNo").remove();
+                            $("#modalUpdateStatus").find("#pnChooseBankSend").removeClass("d-none");
+                            Alert.Success(rs.message);
+                        }
+                        else {
+                            $("#modalUpdateStatus").find("#btnSubtractPoint").removeClass("d-none");
+                            Alert.Error(rs.message);
+                        }
+                    }
+                });
+            });
+            $("#modalUpdateStatus").on("click", "#btnSaveBankSend", function () {
+                $(this).addClass("d-none");
+                let id = $(this).data("id");
+                let bankcashout = $("#modalUpdateStatus #ipbank")?.val() ?? "";
+                $.ajax({
+                    url: "/Withdraw/UpdateBankSend",
+                    method: "POST",
+                    data: {
+                        customerRequestId: id,
+                        bankcashout: bankcashout
+                    },
+                    error: function (err) {
+                        $("#modalUpdateStatus").find("#btnSaveBankSend").removeClass("d-none");
+                        Alert.Error(err);
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            Alert.Success(rs.message);
+                            $("#modalUpdateStatus").modal("hide");
+                        }
+                        else {
+                            $("#modalUpdateStatus").find("#btnSaveBankSend").removeClass("d-none");
+                            Alert.Error(rs.message);
+                        }
+                    }
+                });
+            });
+            $("#modalUpdateStatus").on("click", "#btnReport", function () {
+                let id = $(this).data("id");
+                let note = $("#modalUpdateStatus #ipNote")?.val() ?? "";
+                $.ajax({
+                    url: "/Withdraw/ReportCustomerRequest",
+                    method: "POST",
+                    data: {
+                        customerRequestId: id,
+                        note: note
+                    },
+                    error: function (err) {
+                        Alert.Error(err);
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            Alert.Success(rs.message);
+                            $("#modalUpdateStatus").modal("hide");
+                        }
+                        else {
+                            Alert.Error(rs.message);
+                        }
+                    }
+                });
+            });
+            $("#modalUpdateStatus").on("click", "#btnNo", function () {
+                let id = $(this).data("id");
+                let note = $("#modalUpdateStatus #ipNote")?.val() ?? "";
+                $.ajax({
+                    url: "/Withdraw/UpdateNo",
+                    method: "POST",
+                    data: {
+                        customerRequestId: id,
+                        note: note
+                    },
+                    error: function (err) {
+                        Alert.Error(err);
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            Alert.Success(rs.message);
+                            $("#modalUpdateStatus").modal("hide");
+                        }
+                        else {
+                            Alert.Error(rs.message);
+                        }
+                    }
+                });
+            });
+            $("#table").on("click", "tr", function () {
+                $(this).attr("style", "background-color:#dee2e6").siblings().removeAttr("style");
+            });
+            $("#btnSearch").click(function () {
+                dataBind();
+
+            });
+            $('#btnClearSearch').click(function () {
+                $('#searchtext').val('');
+                dataBind();
+            });
+            $("#searchtext").bind("enterKey", function (e) {
+                dataBind();
+            });
+            $("#searchtext").keyup(function (e) {
+                if (e.keyCode == 13) {
+                    $(this).trigger("enterKey");
+                }
+            });
+            $("#slbStatusFilter").change(function () {
+                dataBind();
+            });
+            $("#chbBaoLoi").change(function () {
+                dataBind();
+            });
+            function changeTotal() {
+                let exp = $("#frmChangeTotal input").data("exp");
+                let val = $("#frmChangeTotal input").val();
+                if (val == null || val == '') {
+                    toastr.error("Vui lòng không để trống!");
+                }
+                else {
+                    $.ajax({
+                        url: "/Withdraw/ChangeTotal",
+                        method: "POST",
+                        data: {
+                            exp: exp,
+                            val: val
+                        },
+                        error: function (err) {
+                            toastr.error(err);
+                        },
+                        success: function (rs) {
+                            if (rs.success) {
+                                toastr.success("Lưu thành công!");
+                                $("#txtTotal").text(rs.total);
+                                $("#frmChangeTotal").addClass("d-none");
+                                $("#btnExp button[data-exp='-']").removeClass("btn-danger").addClass("btn-outline-danger");
+                                $("#btnExp button[data-exp='+']").removeClass("btn-success").addClass("btn-outline-success");
+                            }
+                            else {
+                                toastr.error(rs.message);
+                            }
+                        }
+                    });
+                }
+            }
+            $("#btnExp").on("click", "button", function () {
+                let exp = $(this).data("exp");
+                if (exp == '+') {
+                    $(this).removeClass("btn-outline-success");
+                    $(this).addClass("btn-success");
+                    $("#btnExp button[data-exp='-']").removeClass("btn-danger").addClass("btn-outline-danger");
+                }
+                else {
+                    $(this).removeClass("btn-outline-danger");
+                    $(this).addClass("btn-danger");
+                    $("#btnExp button[data-exp='+']").removeClass("btn-success").addClass("btn-outline-success");
+                }
+                $("#frmChangeTotal input").data("exp", exp);
+                $("#frmChangeTotal input").val("");
+                $("#frmChangeTotal").removeClass("d-none");
+                $("#frmChangeTotal input").focus();
+            });
+            $("#frmChangeTotal").on("click", "button", function () {
+                changeTotal();
+            });
+            $("#frmChangeTotal input").bind("enterKey", function (e) {
+                changeTotal();
+            });
+            $("#frmChangeTotal input").keyup(function (e) {
+                if (e.keyCode == 13) {
+                    $(this).trigger("enterKey");
+                }
+            });
+            $("#modalUpdateStatus").on("click", ".recommend", function () {
+                $("#modalUpdateStatus #ipNote").val($(this).text());
+            });
+            $("#modalUpdateStatus").on("click", ".bankrecommend", function () {
+                $("#modalUpdateStatus #ipbank").val($(this).text());
+            });
+            $("#btnExportExcel").click(function () {
+                Alert.Loading();
+                $.ajax({
+                    url: "/Withdraw/ExportExcel",
+                    method: "POST",
+                    data: {
+                        searchtext: $("#searchtext").val(),
+                        statusFilter: $("#slbStatusFilter").val(),
+                        chbBaoLoi: $("#chbBaoLoi").prop("checked"),
+                        dateFilter: $('#ipDateFilter').val()
+                    },
+                    error: function (err) {
+                        Alert.Error(err);
+                    },
+                    success: function (rs) {
+                        Alert.Hide();
+                        if (rs.success) {
+                            location.href = rs.url;
+                        }
+                        else {
+                            Alert.Error(null, rs.message);
+                        }
+                    }
+                });
+            });
+            $("#btnExportExcelCashoutSuccessByBank").click(function () {
+                Alert.Loading();
+                $.ajax({
+                    url: "/Withdraw/ExportExcelCashoutSuccessByBank",
+                    method: "POST",
+                    data: {
+                        dateFilter: $('#ipDateFilter').val()
+                    },
+                    error: function (err) {
+                        Alert.Error(err);
+                    },
+                    success: function (rs) {
+                        Alert.Hide();
+                        if (rs.success) {
+                            location.href = rs.url;
+                        }
+                        else {
+                            Alert.Error(null, rs.message);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

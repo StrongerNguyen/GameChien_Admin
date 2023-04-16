@@ -1,0 +1,21 @@
+﻿@model FT_Admin.Models.ViewModel.PermissionViewModel
+<div>
+    <div class="d-flex flex-column">
+        <label>
+            <i>Tên:</i>
+            @if (string.IsNullOrEmpty(Model.Name))
+            {
+                @Html.TextBoxFor(t => t.Name, new { @class = "form-control" })
+            }
+            else
+            {
+                @Html.TextBoxFor(t => t.Name, new { @class = "form-control", disabled = "disabled" })
+            }
+        </label>
+        <label>
+            <i>Mô tả:</i>
+            @Html.TextAreaFor(t => t.Description, new { @class = "form-control" })
+        </label>
+        <button type="button" id="btnUpdate" class="btn btn-success d-block mx-auto mt-2">@(string.IsNullOrEmpty(Model.Name)?"Thêm mới":"Cập nhật")</button>
+    </div>
+</div>

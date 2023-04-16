@@ -1,0 +1,39 @@
+﻿@using FT_Admin.Models.ViewModel
+@model DepositViewModel
+@if (Model != null)
+{
+    <tr data-id='@Model.Id'>
+        <td style='text-align:center;vertical-align:middle'>@Model.CreatedTime.ToString("dd/MM HH:mm")</td>
+        <td style='text-align:center;vertical-align:middle'>@Model.PlayerAccountName</td>
+        <td style='text-align:center;vertical-align:middle'>@Model.Amount</td>
+        <td style='text-align:center;vertical-align:middle'>
+            @if (Model.AttachFile != null)
+            {
+                <a href='@Model.AttachFile' data-lightbox='@Model.Id' data-title='@Model.PlayerAccountName'><img src='@Model.AttachFile' style='max-height:100px;max-width:100px' /></a>
+            }
+        </td>
+        <td style='text-align:center;vertical-align:middle'>@(Model.UpdatedTime?.ToString("dd/MM HH:mm")??"")</td>
+        <td style='text-align:center;vertical-align:middle'>@(Model.UpdatedByUserName??"")</td>
+        @if (User.IsInRole("actionDeposit"))
+        {
+            <td style='text-align:center;vertical-align:middle'>
+                @if (Model.Status == null)
+                {
+                    <div class='btn-group'>
+                        <button class='btn btn-sm p-2 btn-outline-primary font-weight-bold' data-id='@Model.Id' data-status="search"><i class="fa fa-search" aria-hidden="true"></i> Search</button>
+                        <button class='btn btn-sm p-2 btn-outline-success font-weight-bold' data-id='@Model.Id' data-status="yes"><i class="fa fa-check" aria-hidden="true"></i> YES</button>
+                        <button class='btn btn-sm p-2 btn-outline-danger font-weight-bold' data-id='@Model.Id' data-status="no"><i class="fa fa-times" aria-hidden="true"></i> NO</button>
+                    </div>
+                }
+                else if (Model.Status.Value)
+                {
+                    <b class='text-success'>YES</b>
+                }
+                else
+                {
+                    <b class='text-danger'>NO</b>
+                }
+            </td>
+        }
+    </tr>
+}

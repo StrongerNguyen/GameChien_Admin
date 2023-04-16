@@ -1,0 +1,325 @@
+﻿@using BankMessage.Models
+@model List<CustomerDto>
+@{
+    bool type = (bool)ViewBag.Type;
+    ViewBag.Title = (type == true ? "NẠP $" : "RÚT $");
+}
+<input id="ipRole" value="@(User.IsInRole("0")?0:1)" hidden />
+<input id="ipType" value="@(type==true?1:0)" hidden />
+@section header{
+    <div class="pl-2"><h5 class="mb-0" style="color:#f60"><i class="fa fa-caret-right" aria-hidden="true"></i> @ViewBag.Title</h5></div>
+}
+<div class="d-flex justify-content-end p-2 justify-content-between" style="background-color:#f2f2f2">
+    <div class="d-flex align-content-center align-items-center text-success font-weight-bold">Sum YES: @(ViewBag.Total??0)</div>
+    <div class="d-flex flex-row">
+        <label class="d-flex flex-row mb-0 align-items-center">
+            <span>Trạng thái</span>
+            <select id="slbStatusFilter" class="form-control-sm form-control d-block ml-2" style="width:150px">
+                <option value="all">All</option>
+                <option value="" selected>Chưa xử lý</option>
+                @foreach (var item in (List<string>)ViewBag.StatusList)
+                {
+                    <option value="@item">@item</option>
+                }
+            </select>
+        </label>
+        <div class="input-group input-group-sm ml-2" style="width:320px">
+            <input type="text" class="form-control" id="searchtext" placeholder="Nhập từ khóa tìm kiếm" />
+            <div class="input-group-append">
+                <button class="btn btn-primary btn-sm" type="button" id="btnSearch"><i class="fa fa-search" aria-hidden="true"></i> Search</button>
+                <button class="btn btn-danger btn-sm" type="button" id="btnClearSearch"><i class="fa fa-close" aria-hidden="true"></i> Clear</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="section m-2 flex-grow-1 overflow-auto position-relative">
+    <table class="table table-hover table-sm table-responsive-sm table-bordered">
+        <thead>
+            <tr>
+                <th width="100px" style="text-align: center">Thời gian</th>
+                <th width="100px" style="text-align: center">Game ID</th>
+                <th width="150px" style="text-align: center">Account Name</th>
+                @if (!type)
+                {
+                    <th width="100px" style="text-align: center">Ngân hàng</th>
+                    <th width="100px" style="text-align: center">Số tài khoản</th>
+                    <th width="150px" style="text-align: center">Chủ tài khoản</th>
+                    <th width="100px" style="text-align: center">Số điểm rút</th>
+                    <th width="100px" style="text-align: center">Giá trị quy đổi</th>
+                    <th width="150px" style="text-align: center">Tổng tiền</th>
+                }
+                else
+                {
+                    <th width="150px" style="text-align: center">Số điện thoại</th>
+                    <th width="100px" style="text-align: center">Số điểm nạp</th>
+                    <th width="100px" style="text-align: center">Giá trị quy đổi</th>
+                    <th width="150px" style="text-align: center">Tổng tiền</th>
+                    <th width="150px" style="text-align: center">Ảnh chuyển khoản</th>
+                }
+                <th width="150px" style="text-align: center">Ghi chú</th>
+                <th width="150px" style="text-align: center">Người xử lý</th>
+                <th width="150px" style="text-align: center">Action</th>
+            </tr>
+        </thead>
+        <tbody id="tblBody" data-type="@(type==true?1:0)">
+        </tbody>
+    </table>
+</div>
+<div class="bottom" style="background-color:#f2f2f2">
+    <nav aria-label="...">
+        <ul class="pagination justify-content-center flex-wrap m-2">
+        </ul>
+    </nav>
+</div>
+<div class="modal fade" id="modalUpdateStatus" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="word-break:break-word"></div>
+        </div>
+    </div>
+</div>
+<audio id="audioTag" src="~/Content/audio/notification-sound.mp3">
+    <p>This browser does not support audio.</p>
+</audio>
+@section script{
+    <script type="text/javascript" src="~/signalr/hubs"></script>
+    <script type="text/javascript" src="~/Scripts/pagination.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/moment.min.js"></script>
+    <script type="text/javascript" src="~/Content/lightbox2/js/lightbox.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            lightbox.option({
+                'fadeDuration': 0,
+                'resizeDuration': 0,
+                'wrapAround': true
+            });
+            function playSound(mysound) {
+                var audio = new Audio(mysound);
+                audio.play();
+            }
+            //load data
+            var elmBodyTable = $("#tblBody[data-type='" + $("#ipType").val() + "']");
+            var chat = $.connection.realtimeHub;
+            function dataBind() {
+                Loading.show(".section");
+                $.ajax({
+                    url: "/CustomerRequest/getCustomerRequest",
+                    method: "POST",
+                    data: {
+                        searchtext: $("#searchtext").val(),
+                        statusFilter: $("#slbStatusFilter").val(),
+                        type: $("#ipType").val(),
+                        curPage: $(".page-item.active").attr("data-pagenum") ?? 1
+                    },
+                    error: function (err) {
+                        Loading.hide(".section");
+                    },
+                    success: function (rs) {
+                        Loading.hide(".section");
+                        if (rs.success) {
+                            elmBodyTable.empty();
+                            $(".pagination").empty();
+
+                            for (var i = 1; i <= rs.data.MaxPage; i++) {
+                                $(".pagination").append("<li class='page-item " + (rs.data.CurPage == i ? "active" : "") + "' data-pagenum='" + i + "'><a class='page-link' href='#'>" + i + "</a></li>");
+                            }
+                            $.each(rs.data.dataCustomerRequest, function (key, value) {
+                                elmBodyTable.prepend(Render(value));
+                            });
+                        }
+                    }
+                });
+            };
+            $(".pagination").on("click", ".page-item", function () {
+                $(".pagination").children(".page-item").removeClass("active");
+                $(this).addClass("active");
+                dataBind();
+            });
+            chat.client.updateUserUpdatingCustomerRequest = function (id, user) {
+                elmBodyTable.find("tr[data-id='" + id + "'] td[data-col='updateby']").append("<i>[" + user + "]</i>");
+                setTimeout(function () {
+                    elmBodyTable.find("tr[data-id='" + id + "'] td[data-col='updateby'] i").remove();
+                }, 30000);
+            };
+            chat.client.updateCustomerRequest = function (customerRequestDto) {
+                Render(customerRequestDto);
+            }
+            chat.client.newCustomerRequest = function (customerRequestDto) {
+                Render(customerRequestDto);
+                playSound("/Content/audio/notification-sound.mp3");
+            }
+            chat.client.updateCountNotify = function (customer, nap, rut) {
+                if (customer > 0) {
+                    $("#customerStt").html("<span class='badge badge-danger'>" + customer + "</span>")
+                }
+                else $("#customerStt").empty();
+                if (nap > 0) {
+                    $("#napStt").html("<span class='badge badge-danger'>" + nap + "</span>")
+                }
+                else $("#napStt").empty();
+                if (rut > 0) {
+                    $("#rutStt").html("<span class='badge badge-danger'>" + rut + "</span>")
+                }
+                else $("#rutStt").empty();
+            };
+            $.connection.hub.start().done(function () {
+                dataBind();
+            });
+            $.connection.hub.disconnected(function () {
+                setTimeout(function () {
+                    $.connection.hub.start();
+                }, 5000); // Re-start connection after 5 seconds
+            });
+
+            function Render(cusRequest) {
+                var elmTr = "<tr data-id='" + cusRequest.Id + "'>"
+                    + "<td style='text-align:center;vertical-align:middle'>" + (moment(cusRequest.CreatedTime).format('DD/MM/yyyy HH:mm')) + "</td>"
+                    + "<td style='text-align:center;vertical-align:middle'>" + (cusRequest.GameId ?? "") + "</td>"
+                    + "<td style='text-align:center;vertical-align:middle'>" + (cusRequest.GameAccountName ?? "") + "</td>"
+
+                    + (cusRequest.Type != true ?
+                        (
+                            "<td style='text-align:center;vertical-align:middle'>" + (cusRequest.BankName ?? "") + "</td>"
+                            + "<td style='text-align:center;vertical-align:middle'>" + (cusRequest.BankAccountNumber ?? "") + "</td>"
+                            + "<td style='text-align:center;vertical-align:middle'>" + (cusRequest.BankFullName ?? "") + "</td>"
+                            + "<td style='text-align:center;vertical-align:middle'>" + (cusRequest.Point) + "</td>"
+                            + "<td style='text-align:center;vertical-align:middle'>" + (cusRequest.MoneyOfPoint ?? "") + "</td>"
+                            + "<td style='text-align:center;vertical-align:middle'>" + (cusRequest.Total ?? "") + "</td>"
+                        )
+                        :
+                        (
+                            "<td style='text-align:center;vertical-align:middle'>" + (cusRequest.PhoneNumber ?? "") + "</td>"
+                            + "<td style='text-align:center;vertical-align:middle'>" + (cusRequest.Point) + "</td>"
+                            + "<td style='text-align:center;vertical-align:middle'>" + (cusRequest.MoneyOfPoint ?? "") + "</td>"
+                            + "<td style='text-align:center;vertical-align:middle'>" + (cusRequest.Total ?? "") + "</td>"
+                            + "<td style='text-align:center;vertical-align:middle'>" + (cusRequest.AttachFile == null ? "" : "<a href='" + cusRequest.AttachFile + "' data-lightbox='" + cusRequest.Id + "' data-title='" + (cusRequest.GameId ?? "") + "'><img src='" + cusRequest.AttachFile + "' style='max-height:100px;max-width:100px'/></a>") + "</td>"
+                        )
+                    )
+                    + "<td style='text-align:center;vertical-align:middle'>" + (cusRequest.Note ?? "") + "</td>"
+                    + "<td style='text-align:center;vertical-align:middle' data-col='updateby'>" + (cusRequest.UpdateBy ?? "") + "</td>"
+                    + "<td style='text-align:center;vertical-align:middle'>"
+                    + (cusRequest.Status == "yes" ? "<b class='text-success'>YES</b>" : (cusRequest.Status == "no" ? "<b class='text-danger'>NO</b>" : (
+                        "<div class='btn-group'>"
+                        + "<button class='btnYes btn btn-sm p-3 " + (cusRequest.Status == "yes" ? "btn-success" : "btn-outline-success") + "' data-id='" + cusRequest.Id + "'>Yes</button>"
+                        + "<button class='btnNo btn btn-sm p-3 " + (cusRequest.Status == "no" ? "btn-danger" : "btn-outline-danger") + "' data-id='" + cusRequest.Id + "'>No</button>"
+                        + "</div>"
+                    )))
+                    + "</td>"
+                    + "</tr>";
+                if ($("#tblBody[data-type='" + (cusRequest.Type == true ? 1 : 0) + "']").children("tr[data-id='" + cusRequest.Id + "']").length > 0) {
+                    $("#tblBody[data-type='" + (cusRequest.Type == true ? 1 : 0) + "']").children("tr[data-id='" + cusRequest.Id + "']").replaceWith(elmTr);
+                }
+                else {
+                    if (($("#slbStatusFilter").val() == (cusRequest.Status ?? '')) || ($("#slbStatusFilter").val() == 'all')) {
+                        $("#tblBody[data-type='" + (cusRequest.Type == true ? 1 : 0) + "']").prepend(elmTr);
+                    }
+                }
+            };
+            elmBodyTable.on("click", ".btnYes", function () {
+                var id = $(this).data("id");
+                $.ajax({
+                    url: "/CustomerRequest/CustomerRequestDetail",
+                    method: "POST",
+                    data: {
+                        id: id,
+                        status: "yes"
+                    },
+                    success: function (rs) {
+                        if (rs.message != undefined) {
+                            toastr.error(rs.message);
+                        }
+                        else {
+                            $("#modalUpdateStatus .modal-title").addClass("text-success");
+                            $("#modalUpdateStatus .modal-title").text("Bạn có chắc muốn chọn YES");
+                            $("#modalUpdateStatus .modal-body").html(rs);
+                            $("#modalUpdateStatus").modal("show");
+                        }
+                    }
+                });
+            });
+            elmBodyTable.on("click", ".btnNo", function () {
+                var id = $(this).data("id");
+                $.ajax({
+                    url: "/CustomerRequest/CustomerRequestDetail",
+                    method: "POST",
+                    data: {
+                        id: id,
+                        status: "no"
+                    },
+                    success: function (rs) {
+                        if (rs.message != undefined) {
+                            toastr.error(rs.message);
+                        }
+                        else {
+                            $("#modalUpdateStatus .modal-title").addClass("text-danger");
+                            $("#modalUpdateStatus .modal-title").text("Bạn có chắc muốn chọn NO");
+                            $("#modalUpdateStatus .modal-body").html(rs);
+                            $("#modalUpdateStatus").modal("show");
+                        }
+                    }
+                });
+            });
+            //$("#modalUpdateStatus").on("keyup", "#ipConfirmGameId", function () {
+            //    if ($(this).val() == $(this).data("gameid")) {
+            //        $("#modalUpdateStatus #btnUpdateStatus").removeAttr("disabled");
+            //    }
+            //    else {
+            //        $("#modalUpdateStatus #btnUpdateStatus").attr("disabled", "disabled");
+            //    }
+            //});
+            $("#modalUpdateStatus").on("click", "#btnUpdateStatus", function () {
+                $(this).attr("disabled", "disabled");
+                var id = $(this).data("id");
+                $.ajax({
+                    url: "/CustomerRequest/UpdateStatus",
+                    method: "POST",
+                    data: {
+                        id: id,
+                        status: $(this).data("status"),
+                        note: $("#modalUpdateStatus #ipNote").val()
+                    },
+                    success: function (rs) {
+                        $(this).removeAttr("disabled")
+                        if (rs.success) {
+                            toastr.success(rs.message);
+                            $("#modalUpdateStatus").modal("hide");
+                        }
+                        else {
+                            toastr.error(rs.message);
+                        }
+                    }
+                });
+            });
+            elmBodyTable.on("click", "tr", function () {
+                $(this).attr("style", "background-color:#dee2e6").siblings().removeAttr("style");
+            });
+
+            $("#btnSearch").click(function () {
+                dataBind();
+
+            });
+            $('#btnClearSearch').click(function () {
+                $('#searchtext').val('');
+                dataBind();
+            });
+
+            $("#searchtext").bind("enterKey", function (e) {
+                dataBind();
+            });
+            $("#searchtext").keyup(function (e) {
+                if (e.keyCode == 13) {
+                    $(this).trigger("enterKey");
+                }
+            });
+            $("#slbStatusFilter").change(function () {
+                dataBind();
+            });
+        });
+    </script>
+}

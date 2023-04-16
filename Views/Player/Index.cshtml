@@ -1,0 +1,202 @@
+﻿@using FT_Admin.Models
+@model List<CustomerDto>
+@{
+    ViewBag.Title = "Danh sách người chơi";
+}
+@section header{
+    <div class="pl-2"><h5 class="mb-0" style="color:#f60"><i class="fa fa-caret-right" aria-hidden="true"></i> @ViewBag.Title</h5></div>
+}
+<div class="d-flex justify-content-between p-2" style="background-color:#f2f2f2">
+    <div>
+        @if (User.IsInRole("addCustomer"))
+        {
+            <button class="btn btn-primary btn-sm" id="btnAddNew"><i class="fa fa-plus" aria-hidden="true"></i> Thêm mới</button>
+        }
+    </div>
+    <div class="d-flex flex-row">
+        <label class="d-flex align-items-center">
+            <input type="checkbox" id="ipIsBlock" /><b class="mx-2">isBlock</b>
+        </label>
+        <div class="input-group input-group-sm" style="max-width:320px">
+            <input type="text" class="form-control" id="searchtext" placeholder="Nhập từ khóa tìm kiếm" />
+            <div class="input-group-append">
+                <button class="btn btn-primary btn-sm" type="button" id="btnSearch"><i class="fa fa-search" aria-hidden="true"></i> Search</button>
+                <button class="btn btn-danger btn-sm" type="button" id="btnClearSearch"><i class="fa fa-close" aria-hidden="true"></i> Clear</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="table" class="m-2 flex-grow-1 position-relative d-flex flex-column overflow-auto">
+    @*Render table*@
+</div>
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cập nhật Khách hàng</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="word-break:break-word">
+            </div>
+        </div>
+    </div>
+</div>
+@section script{
+    <script type="text/javascript" src="~/Scripts/pagination.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/moment.min.js"></script>
+    <script type="text/javascript" src="~/signalr/hubs"></script>
+    <script>
+        $(document).ready(function () {
+            var chat = $.connection.realtimeHub;
+            
+            chat.client.updatePlayer = function (Id) {
+                GetById(Id);
+            };
+            $.connection.hub.start().done(function () {
+                dataBind();
+            });
+            $.connection.hub.disconnected(function () {
+                setTimeout(function () {
+                    $.connection.hub.start();
+                }, 5000); // Re-start connection after 5 seconds
+            });
+            //load data
+            function dataBind() {
+                Loading.show("#table");
+                var currentPage = $(".page-item.active").attr("data-pagenum") ?? 1;
+                $.ajax({
+                    url: "/Player/GetAll",
+                    method: "POST",
+                    data: {
+                        searchtext: $("#searchtext").val(),
+                        isBlock: $("#ipIsBlock").prop("checked"),
+                        curPage: currentPage
+                    },
+                    error: function (err) {
+                        toastr.error(err);
+                        Loading.hide("#table");
+                    },
+                    success: function (rs) {
+                        Loading.hide("#table");
+                        $("#table").html(rs);
+                    }
+                });
+            };
+            function GetById(Id) {
+                $.ajax({
+                    url: "/Player/GetById",
+                    method: "POST",
+                    data: {
+                        Id: Id,
+                        searchtext: $("#searchtext").val(),
+                        isBlock: $("#ipIsBlock").prop("checked")
+                    },
+                    error: function (err) {
+                        toastr.error(err);
+                    },
+                    success: function (rs) {
+                        if ($("#table tbody tr[data-id='" + Id + "']").length > 0) {
+                            $("#table tbody tr[data-id='" + Id + "']").replaceWith(rs);
+                        }
+                        else {
+                            $("#table tbody").prepend(rs);
+                        }
+                    }
+                });
+            };
+            function Detail(Id) {
+                $.ajax({
+                    url: "/Player/Detail",
+                    method: "POST",
+                    data: {
+                        Id: Id
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    success: function (rs) {
+                        if (Id == null) {
+                            $("#modal .modal-title").html("Thêm mới");
+                        } else {
+                            $("#modal .modal-title").html("Cập nhật");
+                        }
+                        $("#modal .modal-body").html(rs);
+                        $("#modal").modal("show");
+                    }
+                });
+            }
+            $("#table").on("click", ".page-item", function () {
+                $(".pagination").children(".page-item").removeClass("active");
+                $(this).addClass("active");
+                dataBind();
+            });
+            
+            $("#table").on("click", ".btnEdit", function () {
+                Detail($(this).data("id"));
+            });
+            $("#modal").on("click", "#btnUpdate", function () {
+                let Id = $("input[name='Id']").val();
+                let AccountName = $("input[name='AccountName']").val();
+                let FullName = $("input[name='FullName']").val();
+                let PhoneNumber = $("input[name='PhoneNumber']").val();
+                let GameAccount = $("input[name='GameAccount']").val();
+                let isVerifiedGameAccount = $("input[name='isVerifiedGameAccount']").prop("checked");
+                let isBlock = $("input[name='isBlock']").prop("checked");
+
+                $.ajax({
+                    url: "/Player/Update",
+                    method: "POST",
+                    data: {
+                        Id: Id,
+                        AccountName: AccountName,
+                        FullName: FullName,
+                        PhoneNumber: PhoneNumber,
+                        GameAccount: GameAccount,
+                        isVerifiedGameAccount: isVerifiedGameAccount,
+                        isBlock: isBlock
+                    },
+                    error: function (err) {
+                        toastr.error(err);
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            toastr.success(rs.message);
+                            GetById(rs.Id);
+                            $("#modal").modal("hide");
+                        }
+                        else {
+                            toastr.error(rs.message);
+                        }
+                    }
+                });
+            });
+            $("#btnSearch").click(function () {
+                $(".page-item.active").attr("data-pagenum", 1);
+                dataBind();
+            });
+            $('#btnClearSearch').click(function () {
+                $('#searchtext').val('');
+                $(".page-item.active").attr("data-pagenum", 1);
+                dataBind();
+            });
+            $("#searchtext").bind("enterKey", function (e) {
+                $(".page-item.active").attr("data-pagenum", 1);
+                dataBind();
+            });
+            $("#searchtext").keyup(function (e) {
+                if (e.keyCode == 13) {
+                    $(this).trigger("enterKey");
+                }
+            });
+            $("#table").on("click", "tr", function () {
+                $(this).attr("style", "background-color:#dee2e6").siblings().removeAttr("style");
+            });
+            $("#ipIsBlock").change(function () {
+                $(".page-item.active").attr("data-pagenum", 1);
+                dataBind();
+            });
+        });
+    </script>
+}

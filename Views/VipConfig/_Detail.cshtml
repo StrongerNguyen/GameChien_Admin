@@ -1,0 +1,24 @@
+﻿@model FT_Admin.Models.Dto.VipConfigDto
+
+<div>
+    @Html.TextBoxFor(t => t.Id, new { @hidden = "hidden" })
+    <div class="d-flex flex-column">
+        <label>
+            <i>Tên:</i>
+            @Html.TextBoxFor(t => t.Name, new { @class = "form-control" })
+        </label>
+        <label>
+            <i>Từ số tiền (>):</i>
+            @Html.TextBoxFor(t => t.FromAmount, new { @class = "form-control", @type = "number" })
+        </label>
+        <label>
+            <i>Đến số tiền (<=) :</i>
+            @Html.TextBoxFor(t => t.ToAmount, new { @class = "form-control", @type = "number" })
+        </label>
+        <label>
+            <i>Trạng thái:</i>
+            @Html.CheckBoxFor(t => t.isActive, new { @class = "form-control" })
+        </label>
+        <button type="button" id="btnUpdate" class="btn btn-success d-block mx-auto mt-2">@(Model.Id==Guid.Empty?"Thêm mới":"Cập nhật")</button>
+    </div>
+</div>

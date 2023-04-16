@@ -1,0 +1,103 @@
+﻿@using FT_Admin.Models.ViewModel
+@model List<DepositViewModel>
+<div class="flex-grow-1 overflow-auto">
+    <table class="table table-hover table-sm table-responsive-sm table-bordered m-0">
+        <thead>
+            <tr>
+                <th width="100px" style="text-align: center">CreatedTime</th>
+                <th width="100px" style="text-align: center">PlayerAccountName</th>
+                <th width="150px" style="text-align: center">Amount</th>
+                <th width="100px" style="text-align: center">AttachFile</th>
+
+                <th width="150px" style="text-align: center">UpdatedTime</th>
+                <th width="100px" style="text-align: center">UpdatedByUserName</th>
+                
+                @if (User.IsInRole("actionDeposit"))
+                {
+                    <th width="150px" style="text-align: center">Action</th>
+                }
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var deposit in Model)
+            {
+                <tr data-id='@deposit.Id'>
+                    <td style='text-align:center;vertical-align:middle'>@deposit.CreatedTime.ToString("dd/MM HH:mm")</td>
+                    <td style='text-align:center;vertical-align:middle'>@deposit.PlayerAccountName</td>
+                    <td style='text-align:center;vertical-align:middle'>@deposit.Amount</td>
+                    <td style='text-align:center;vertical-align:middle'>
+                        @if (deposit.AttachFile != null)
+                        {
+                            <a href='@deposit.AttachFile' data-lightbox='@deposit.Id' data-title='@deposit.PlayerAccountName'><img src='@deposit.AttachFile' style='max-height:100px;max-width:100px' /></a>
+                        }
+                    </td>
+                    <td style='text-align:center;vertical-align:middle'>@(deposit.UpdatedTime?.ToString("dd/MM HH:mm")??"")</td>
+                    <td style='text-align:center;vertical-align:middle'>@(deposit.UpdatedByUserName??"")</td>
+                    @if (User.IsInRole("actionDeposit"))
+                    {
+                        <td style='text-align:center;vertical-align:middle'>
+                            @if (deposit.Status == null)
+                            {
+                                <div class='btn-group'>
+                                    <button class='btn btn-sm p-2 btn-outline-primary font-weight-bold' data-id='@deposit.Id' data-status="search"><i class="fa fa-search" aria-hidden="true"></i> Search</button>
+                                    <button class='btn btn-sm p-2 btn-outline-success font-weight-bold' data-id='@deposit.Id' data-status="yes"><i class="fa fa-check" aria-hidden="true"></i> YES</button>
+                                    <button class='btn btn-sm p-2 btn-outline-danger font-weight-bold' data-id='@deposit.Id' data-status="no"><i class="fa fa-times" aria-hidden="true"></i> NO</button>
+                                </div>
+                            }
+                            else if (deposit.Status.Value)
+                            {
+                                <b class='text-success'>YES</b>
+                            }
+                            else
+                            {
+                                <b class='text-danger'>NO</b>
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="d-flex align-items-center justify-content-center" style="background-color:#f2f2f2">
+    <nav aria-label="...">
+        <ul class="pagination justify-content-center flex-wrap m-1">
+            @{
+                int maxPage = (int)ViewBag.maxPage;
+
+                int curPage = (int)ViewBag.curPage;
+                if (curPage > 3)
+                {
+                    <li class='page-item' data-pagenum='1'><a class='page-link' href='#'>First - 1</a></li>
+                }
+                if (curPage > 4)
+                {
+                    <li class='page-item' data-pagenum='@(curPage-1)'><a class='page-link' href='#'>Prev</a></li>
+                }
+                for (var i = 1; i <= maxPage; i++)
+                {
+                    if (i == curPage)
+                    {
+                        <li class='page-item active' data-pagenum='@i'><a class='page-link' href='#'>@i</a></li>
+                    }
+                    else
+                    {
+                        if (i > curPage - 3 && i < curPage + 3)
+                        {
+                            <li class='page-item' data-pagenum='@i'><a class='page-link' href='#'>@i</a></li>
+                        }
+                    }
+                }
+                if (curPage < maxPage - 3)
+                {
+                    <li class='page-item' data-pagenum='@(curPage+1)'><a class='page-link' href='#'>Next</a></li>
+                }
+                if (curPage < maxPage - 2)
+                {
+                    <li class='page-item' data-pagenum='@maxPage'><a class='page-link' href='#'>Last - @maxPage</a></li>
+                }
+            }
+        </ul>
+    </nav>
+</div>

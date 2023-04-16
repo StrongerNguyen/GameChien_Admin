@@ -1,0 +1,98 @@
+﻿@model List<FT_Admin.Models.ViewModel.PlayerViewModel>
+<div class="flex-grow-1 overflow-auto">
+    <table class="table table-hover table-sm table-responsive-sm table-bordered m-0">
+        <thead>
+            <tr>
+                <th width="150px" style="text-align: center">CreatedTime</th>
+                <th width="100px" style="text-align: center">AccountName</th>
+                <th width="100px" style="text-align: center">FullName</th>
+                <th width="150px" style="text-align: center">PhoneNumber</th>
+                <th width="100px" style="text-align: center">GameAccount</th>
+                <th width="100px" style="text-align: center">Email</th>
+                <th width="150px" style="text-align: center">Credit</th>
+                <th width="150px" style="text-align: center">GameLevel</th>
+                <th width="150px" style="text-align: center">PercentOfLevelUp</th>
+                <th width="80px" style="text-align: center">LastIPAddress</th>
+                <th width="80px" style="text-align: center">isVerifiedGameAccount</th>
+                <th width="80px" style="text-align: center">isBlock</th>
+                <th width="100px" style="text-align: center">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var player in Model)
+            {
+                <tr data-id='@player.Id'>
+                    <td style='text-align:center;vertical-align:middle'>@player.CreatedTime.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td style='text-align:center;vertical-align:middle'>@player.AccountName</td>
+                    <td style='text-align:center;vertical-align:middle'>@player.FullName</td>
+                    <td style='text-align:center;vertical-align:middle'>@player.PhoneNumber</td>
+                    <td style='text-align:center;vertical-align:middle'>@player.GameAccount</td>
+                    <td style='text-align:center;vertical-align:middle'>@player.Email</td>
+                    <td style='text-align:center;vertical-align:middle'>@player.Credit.ToString("N0")</td>
+                    <td style='text-align:center;vertical-align:middle'>@player.GameLevel</td>
+                    <td style='text-align:center;vertical-align:middle'>@player.PercentOfLevelUp</td>
+                    <td style='text-align:center;vertical-align:middle'>@player.LastIPAddress</td>
+                    <td style='text-align:center;vertical-align:middle'>
+                        @if (player.isVerifiedGameAccount)
+                        {
+                            <i class='fa fa-check' style='color:green' aria-hidden='true'></i>
+                        }
+                    </td>
+                    <td style='text-align:center;vertical-align:middle'>
+                        @if (player.isBlock)
+                        {
+                            <i class='fa fa-check' style='color:green' aria-hidden='true'></i>
+                        }
+                    </td>
+                    <td style='text-align:center;vertical-align:middle'>
+                        <div class='btn-group'>
+                            <button class='btnEdit btn btn-primary btn-sm' data-id='@player.Id'><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Chỉnh sửa</button>
+                            <button class='btnResetPassword btn btn-warning btn-sm' data-id='@player.Id'><i class='fa fa-refresh' aria-hidden='true'></i> Đặt lại Password</button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="d-flex align-items-center justify-content-center" style="background-color:#f2f2f2">
+    <nav aria-label="...">
+        <ul class="pagination justify-content-center flex-wrap m-1">
+            @{
+                int maxPage = (int)ViewBag.maxPage;
+
+                int curPage = (int)ViewBag.curPage;
+                if (curPage > 3)
+                {
+                    <li class='page-item' data-pagenum='1'><a class='page-link' href='#'>First - 1</a></li>
+                }
+                if (curPage > 4)
+                {
+                    <li class='page-item' data-pagenum='@(curPage-1)'><a class='page-link' href='#'>Prev</a></li>
+                }
+                for (var i = 1; i <= maxPage; i++)
+                {
+                    if (i == curPage)
+                    {
+                        <li class='page-item active' data-pagenum='@i'><a class='page-link' href='#'>@i</a></li>
+                    }
+                    else
+                    {
+                        if (i > curPage - 3 && i < curPage + 3)
+                        {
+                            <li class='page-item' data-pagenum='@i'><a class='page-link' href='#'>@i</a></li>
+                        }
+                    }
+                }
+                if (curPage < maxPage - 3)
+                {
+                    <li class='page-item' data-pagenum='@(curPage+1)'><a class='page-link' href='#'>Next</a></li>
+                }
+                if (curPage < maxPage - 2)
+                {
+                    <li class='page-item' data-pagenum='@maxPage'><a class='page-link' href='#'>Last - @maxPage</a></li>
+                }
+            }
+        </ul>
+    </nav>
+</div>

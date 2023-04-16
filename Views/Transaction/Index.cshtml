@@ -1,0 +1,593 @@
+﻿@using FT_Admin.Models
+@using FT_Admin.Models.Data
+@{
+    ViewBag.Title = "Giao dịch";
+}
+@section header{
+    <div class="pl-2"><h5 class="mb-0" style="color:#f60"><i class="fa fa-caret-right" aria-hidden="true"></i> @ViewBag.Title</h5></div>
+}
+<div class="d-flex justify-content-end p-2 justify-content-between" style="background-color: #f2f2f2">
+
+    <div class="d-flex align-items-center">
+        @if (User.IsInRole("yesnoTransactionWithoutDeposit"))
+        {
+            <div id="btngWithout" class="d-none">
+                <button class="btn btn-sm btn-success" data-status="yes">Yes Without Deposit</button>
+                <button class="btn btn-sm btn-danger" data-status="no">No Without Deposit</button>
+            </div>
+        }
+    </div>
+
+    <div class="d-flex flex-row">
+        <label class="d-flex flex-row mb-0 align-items-center">
+            <i>From:</i>
+            <select class="form-control form-control-sm ml-1" id="slbFromFilter">
+                <option value="" selected>ALL</option>
+                <option value="SMS">SMS</option>
+                <option value="APP">APP</option>
+                <option value="API">API</option>
+            </select>
+        </label>
+        <label class="d-flex flex-row mb-0 align-items-center ml-2">
+            <i>Date:</i>
+            <input class="form-control form-control-sm ml-1" type="date" id="ipDateFilter" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+        </label>
+        <label class="d-flex flex-row mb-0 align-items-center ml-2">
+            <i>Time:</i>
+            <input class="form-control form-control-sm ml-1" id="ipTimeFilter" />
+        </label>
+        <label class="d-flex flex-row mb-0 align-items-center ml-2">
+            <i>Amount:</i>
+            <input class="form-control form-control-sm ml-1" id="ipMoneyFilter" />
+        </label>
+        <label class="d-flex flex-row mb-0 align-items-center ml-2">
+            <i>Status:</i>
+            <select class="form-control form-control-sm ml-1" id="slbStatusFilter">
+                <option value="null">Chưa xử lý</option>
+                <option value="yes">YES</option>
+                <option value="no">NO</option>
+            </select>
+        </label>
+        @if (User.IsInRole("0") || User.IsInRole("viewSubtractTransaction"))
+        {
+            <label class="d-flex flex-row mb-0 align-items-center ml-2">
+                <i>Trừ Tiền</i>
+                <input class="ml-1" type="checkbox" id="chbTruTien" />
+            </label>
+        }
+        <div class="btn-group ml-2">
+            <button id="btnSearch" class="btn btn-primary btn-sm"><i class="fa fa-search" aria-hidden="true"></i> Search</button>
+            <button id="btnClear" class="btn btn-danger btn-sm"><i class="fa fa-filter" aria-hidden="true"></i> Clear</button>
+        </div>
+        @if (User.IsInRole("exportExcel"))
+        {
+            <button class="btn btn-sm btn-success ml-2 text-nowrap" id="btnExportExcel"><i class="fa fa-file-excel-o"></i> Export Excel</button>
+        }
+    </div>
+</div>
+<div id="table" class="m-2 flex-grow-1 position-relative d-flex flex-column overflow-auto">
+    @*Render table*@
+</div>
+<div class="modal fade" id="modalYes" tabindex="-1" role="dialog" aria-labelledby="modalYes" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-success">Bạn có chắc muốn chọn YES</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="word-break:break-word"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success btnOkYes">OK YES</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalNo" tabindex="-1" role="dialog" aria-labelledby="modalNo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">Bạn có chắc muốn chọn NO</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="word-break:break-word"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btnOkNo">OK NO</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAddAccount" tabindex="-1" role="dialog" aria-labelledby="modalAddAccount" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm tài khoản</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="word-break:break-word"></div>
+        </div>
+    </div>
+</div>
+@section script{
+    <script type="text/javascript" src="~/signalr/hubs"></script>
+    <script type="text/javascript" src="~/Scripts/pagination.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            //Define
+            var chat = $.connection.realtimeHub;
+            var slbFromFilter = $("#slbFromFilter");
+            var ipDateFilter = $("#ipDateFilter");
+            var ipTimeFilter = $("#ipTimeFilter");
+            var ipMoneyFilter = $("#ipMoneyFilter");
+            var slbStatusFilter = $("#slbStatusFilter");
+            var chooseTransaction = [];
+
+            $("#table").on("click", ".btnYes", function () {
+                if (!navigator.clipboard) return
+                navigator.clipboard.writeText($(this).data('copy'));
+                toastr.options.positionClass = "toast-bottom-right";
+                toastr.success("Đã sao chép");
+            });
+            function GetById(Id) {
+                $.ajax({
+                    url: "/Transaction/GetById",
+                    method: "POST",
+                    data: {
+                        Id: Id,
+                        TimeFilter: ipTimeFilter.val(),
+                        StatusFilter: slbStatusFilter.val(),
+                        MoneyFilter: ipMoneyFilter.val(),
+                        DateFilter: ipDateFilter.val(),
+                        FromFilter: slbFromFilter.val()
+                    },
+                    error: function (err) {
+                        toastr.error(err);
+                    },
+                    success: function (rs) {
+                        if ($("#table table tbody").children("tr[data-id='" + Id + "']").length > 0) {
+                            $("#table table tbody").children("tr[data-id='" + Id + "']").replaceWith(rs);
+                        }
+                        else {
+                            $("#table table tbody").prepend(rs);
+                        }
+                    }
+                });
+            };
+
+            function dataBind() {
+                Loading.show("#table");
+                $.ajax({
+                    url: "/Transaction/GetAll",
+                    method: "GET",
+                    data: {
+                        curPage: $(".page-item.active").attr("data-pagenum") ?? 1,
+                        TimeFilter: ipTimeFilter.val(),
+                        StatusFilter: slbStatusFilter.val(),
+                        MoneyFilter: ipMoneyFilter.val(),
+                        DateFilter: ipDateFilter.val(),
+                        FromFilter: slbFromFilter.val()
+                    },
+                    error: function (err) {
+                        toastr.error(err);
+                        Loading.hide("#table");
+                    },
+                    success: function (rs) {
+                        Loading.hide("#table");
+                        if (rs.success != null && !rs.success) {
+                            toastr.error(rs.message);
+                        }
+                        else {
+                            $("#table").html(rs);
+                        }
+                    }
+                });
+            }
+            //End Define
+            chat.client.updateTransaction = function (Id) {
+                GetById(Id);
+            };
+
+            chat.client.updateCountNotify = function (customer, nap, rut) {
+                if (customer > 0) {
+                    $("#customerStt").html("<span class='badge badge-danger'>" + customer + "</span>");
+                }
+                else $("#customerStt").empty();
+                if (nap > 0) {
+                    $("#napStt").html("<span class='badge badge-danger'>" + nap + "</span>");
+                }
+                else $("#napStt").empty();
+                if (rut > 0) {
+                    $("#rutStt").html("<span class='badge badge-danger'>" + rut + "</span>");
+                }
+                else $("#rutStt").empty();
+            };
+            chat.client.updateCountTicket = function (ticket) {
+                if (ticket > 0) $("#ticketStt").html("<span class='badge badge-danger'>" + ticket + "</span>");
+                else $("#ticketStt").empty();
+            }
+            var loop = new Array();
+            chat.client.updateBankAccountStatus = function (bankAccountId, type, message, seconds) {
+                if (type == "error") {
+                    $(".syncTransaction" + bankAccountId).html("<div class='bg-danger'>" + message + "</div>");
+                }
+                else if (type == "info") {
+                    //message "" seconds = 20 || message = "Đang đồng bộ" seconds = 0
+                    if (seconds > 0) {
+                        loop[bankAccountId] = setInterval(function () {
+                            seconds--;
+                            $(".syncTransaction" + bankAccountId).html("<div class='bg-info' style='padding:0 3px'>" + seconds + "</div>");
+                        }, 1000);
+                    }
+                    else {
+                        clearInterval(loop[bankAccountId]);
+                        delete loop[bankAccountId];
+
+                        $(".syncTransaction" + bankAccountId).html("<div class='bg-info' style='padding:0 3px'>" + message + "</div>");
+                    }
+                }
+                else if (type == "warning") {
+                    $(".syncTransaction" + bankAccountId).html("<div class='bg-warning'>" + message + "</div>");
+                }
+            };
+            chat.client.updateAdminBalance = function (balance) {
+                $("#totalBalance").html(balance);
+            };
+            $.connection.hub.start().done(function () {
+                dataBind();
+            });
+            $.connection.hub.disconnected(function () {
+                setTimeout(function () {
+                    $.connection.hub.start();
+                }, 5000); // Re-start connection after 5 seconds
+            });
+            //Event
+
+            slbStatusFilter.on("change", function () {
+                dataBind();
+            });
+            slbFromFilter.on("change", function () {
+                dataBind();
+            });
+            $("#btnSearch").on("click", function () {
+                dataBind();
+            });
+            $("#btnClear").on("click", function () {
+                ipMoneyFilter.val('');
+                ipDateFilter.val('');
+                dataBind();
+            });
+            $("#table").on("click", ".page-item", function () {
+                $(".pagination").children(".page-item").removeClass("active");
+                $(this).addClass("active");
+                dataBind();
+            });
+            ipMoneyFilter.on("keypress", function (e) {
+                if (e.keyCode == 13) {
+                    dataBind();
+                }
+            });
+            ipTimeFilter.on("keypress", function (e) {
+                if (e.keyCode == 13) {
+                    dataBind();
+                }
+            });
+            ipDateFilter.on("keypress", function (e) {
+                if (e.keyCode == 13) {
+                    dataBind();
+                }
+            });
+            $('#modalYes').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var content = button.data('content');
+                var modal = $(this);
+                modal.find('.modal-body').html(content);
+                modal.find('.btnOkYes').attr("data-id", button.attr("data-id"));
+            })
+            $('#modalNo').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var content = button.data('content');
+                var modal = $(this);
+                modal.find('.modal-body').html(content)
+                modal.find('.btnOkNo').attr("data-id", button.attr("data-id"));
+            })
+            $('#modalYes').on("click", ".btnOkYes", function () {
+                var elm = $(this);
+                $.ajax({
+                    url: "/Home/UpdateStatus",
+                    method: "POST",
+                    data: {
+                        Id: elm.attr("data-id"),
+                        Status: "yes"
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            $('#modalYes').modal("hide");
+                            toastr.success(rs.message);
+                            //render(rs.data);
+                            if (slbStatusFilter.val() != 'yes' && slbStatusFilter.val() != 'all') {
+                                elm.closest("tr").remove();
+                            }
+                        }
+                        else {
+                            toastr.error(rs.message);
+                        }
+                    }
+                });
+            })
+            $('#modalNo').on("click", ".btnOkNo", function () {
+                var elm = $(this);
+                $.ajax({
+                    url: "/Home/UpdateStatus",
+                    method: "POST",
+                    data: {
+                        ID: elm.attr("data-id"),
+                        Status: "no"
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            $('#modalNo').modal("hide");
+                            toastr.success(rs.message);
+                            //render(rs.data);
+                            if (slbStatusFilter.val() != 'no' && slbStatusFilter.val() != 'all') {
+                                elm.closest("tr").remove();
+                            }
+                        }
+                        else {
+                            toastr.error(rs.message);
+                        }
+                    }
+                });
+            });
+            $('.btnLogoutBankAccount').click(function () {
+                $.ajax({
+                    url: "/Home/LogoutAccount",
+                    method: "POST",
+                    data: {
+                        bankAccountId: $(this).data("id")
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            toastr.success(rs.message);
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000);
+                        }
+                        else {
+                            toastr.error(rs.message);
+                        }
+                    }
+                });
+            });
+            $("#btnAddAccount").click(function () {
+                //lấy danh sách bank config
+                $.ajax({
+                    url: "/Home/LoginBankAccountAPI",
+                    method: "GET",
+                    beforeSend: function () {
+                        $("#btnAddAccount .btnLoading").removeAttr("hidden");
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    complete: function () {
+                        $("#btnAddAccount .btnLoading").attr("hidden", "hidden");
+                    },
+                    success: function (rs) {
+                        if (rs != null && rs.success != null && rs.success == false) {
+                            toastr.error(rs.message);
+                        }
+                        else {
+                            $("#modalAddAccount .modal-body").html(rs);
+                            $("#modalAddAccount").modal("show");
+                        }
+                    }
+                });
+            });
+            $("#table").on("click", "tr", function () {
+                $(this).attr("style", "background-color:#dee2e6").siblings().removeAttr("style");
+            });
+            function updateChooseTransaction() {
+                chooseTransaction = [];
+                $("#table").find("tbody input[type='checkbox']:checked").each(function (i, elm) {
+                    chooseTransaction.push($(elm).data("id"));
+                });
+                if (chooseTransaction.length > 0) {
+                    $("#btngWithout").removeClass("d-none");
+                }
+                else {
+                    $("#btngWithout").addClass("d-none");
+                }
+                console.log(chooseTransaction);
+            }
+            $("#table").on("change", "#checkAll", function () {
+                $("#table").find("tbody input[type='checkbox']").prop('checked', $(this).prop("checked"));
+                updateChooseTransaction();
+            });
+            $("#table").on("change", "tbody input[type='checkbox']", function () {
+                updateChooseTransaction();
+
+            });
+            $("#btngWithout").on("click", "button", function () {
+                Loading.show("#table");
+                var status = $(this).data("status");
+                $.ajax({
+                    url: "/Home/UpdateStatusWithoutDeposit",
+                    method: "POST",
+                    data: {
+                        transactionIds: chooseTransaction,
+                        status: status
+                    },
+                    beforeSend: function () {
+                        Loading.show("#table");
+                    },
+                    error: function (err) {
+                        Loading.hide("#table");
+                        toastr.error(err);
+                    },
+                    success: function (rs) {
+                        Loading.hide("#table");
+                        if (rs.success) {
+                            Alert.Success(rs.message);
+                            $("#btngWithout").addClass("d-none");
+                            $("#table").find("#checkAll").addClass("d-none");
+                        }
+                        else {
+                            Alert.Error(rs.message ?? "Đã có lỗi xảy ra.");
+                        }
+                    }
+                });
+            });
+            $("#btnEditBank").click(function () {
+                $("#modalEditBank").modal("show");
+            });
+
+            //$("#btnSaveBank").click(function () {
+            //    $.ajax({
+            //        url: "/Home/UpdateBank",
+            //        method: "POST",
+            //        data: {
+            //            Title: $("#ipTitle").val(),
+            //            BankName: $("#ipBankName").val(),
+            //            BankAccountNumber: $("#ipBankAccountNumber").val(),
+            //            BankFullName: $("#ipBankFullName").val()
+            //        },
+            //        success: function (rs) {
+            //            if (rs.success) {
+            //                toastr.success(rs.message);
+            //                $("#modalEditBank").modal("hide");
+            //                setTimeout(function () {
+            //                    location.reload();
+            //                }, 2000);
+            //            }
+            //            else {
+            //                toastr.error(rs.message);
+            //            }
+            //        }
+            //    });
+            //});
+            $(".btnReLoginBank").on("click", function () {
+                $.ajax({
+                    url: "/Home/LoginBankAccountAPI",
+                    method: "GET",
+                    data: {
+                        bankAccountId: $(this).data("id")
+                    },
+                    beforeSend: function () {
+                        $("#btnAddAccount .btnLoading").removeAttr("hidden");
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    complete: function () {
+                        $("#btnAddAccount .btnLoading").attr("hidden", "hidden");
+                    },
+                    success: function (rs) {
+                        if (rs != null && rs.success != null && rs.success == false) {
+                            toastr.error(rs.message);
+                        }
+                        else {
+
+                            $("#modalAddAccount .modal-title").html("Đăng nhập lại");
+                            $("#modalAddAccount .modal-body").html(rs);
+                            $("#modalAddAccount").modal("show");
+                        }
+                    }
+                });
+            });
+            $("#modalEditBank").on("click", ".btnDeleteBankNote", function () {
+                let id = $(this).data("id");
+                $.ajax({
+                    url: "/Home/DeleteBankNote",
+                    method: "Delete",
+                    data: {
+                        id: id
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            toastr.success(rs.message);
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1000);
+                        }
+                        else {
+                            toastr.error(rs.message);
+                        }
+                    }
+                });
+            });
+            $("#modalEditBank").on("click", ".btnSaveBankNote", function () {
+                let id = $(this).data("id") ?? "";
+                $.ajax({
+                    url: "/Home/UpdateBank",
+                    method: "Post",
+                    data: {
+                        Id: id,
+                        Title: $("#ipTitle" + id + "").val(),
+                        BankName: $("#ipBankName" + id + "").val(),
+                        BankAccountNumber: $("#ipBankAccountNumber" + id + "").val(),
+                        BankFullName: $("#ipBankFullName" + id + "").val()
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            toastr.success(rs.message);
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1000);
+                        }
+                        else {
+                            toastr.error(rs.message);
+                        }
+                    }
+                });
+            });
+            $("#btnAddBankNote").click(function () {
+                $("#tblBankNote tbody").prepend("<tr><td><input class='form-control' id='ipTitle') /></td><td><input class='form-control' id='ipBankName' /></td><td><input class='form-control' id='ipBankAccountNumber' /></td><td><input class='form-control' id='ipBankFullName' /></td><td><button class='btn btn-sm btn-danger btnDeleteBankNote'>Delete</button><button class='btn btn-sm btn-success btnSaveBankNote ml-2'>Save</button></td></tr>")
+            });
+            $("#chbTruTien").change(function () {
+                dataBind();
+            });
+            $("#btnExportExcel").click(function () {
+                Alert.Loading();
+                $.ajax({
+                    url: "/Home/ExportExcel",
+                    method: "POST",
+                    data: {
+                        TimeFilter: ipTimeFilter.val(),
+                        StatusFilter: slbStatusFilter.val(),
+                        MoneyFilter: ipMoneyFilter.val(),
+                        DateFilter: ipDateFilter.val(),
+                        FromFilter: slbFromFilter.val(),
+                        isTruTien: $("#chbTruTien").prop("checked") ?? false
+                    },
+                    error: function (err) {
+                        Alert.Error(err);
+                    },
+                    success: function (rs) {
+                        Alert.Hide();
+                        if (rs.success) {
+                            location.href = rs.url;
+                        }
+                        else {
+                            Alert.Error(null, rs.message);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

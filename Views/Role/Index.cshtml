@@ -1,0 +1,169 @@
+﻿@{
+    ViewBag.Title = "Role";
+}
+@section header{
+    <div class="pl-2"><h5 class="mb-0" style="color:#f60"><i class="fa fa-caret-right" aria-hidden="true"></i> @ViewBag.Title</h5></div>
+}
+<div class="d-flex justify-content-between p-2" style="background-color:#f2f2f2">
+    <button class="btn btn-primary btn-sm" id="btnAdd"><i class="fa fa-plus" aria-hidden="true"></i> Thêm mới</button>
+</div>
+<div id="table" class="m-2 flex-grow-1 position-relative d-flex flex-column overflow-auto">
+    @*Render table*@
+</div>
+<div class="modal fade" id="modalDetail" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm mới</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="word-break:break-word"></div>
+        </div>
+    </div>
+</div>
+@section script{
+    <script>
+        $(document).ready(function () {
+            function DataBind() {
+                Loading.show("#table");
+                var currentPage = $(".page-item.active").attr("data-pagenum") ?? 1;
+                $.ajax({
+                    url: "/Role/GetAll",
+                    method: "POST",
+                    data: {
+                        curPage: currentPage
+                    },
+                    error: function (err) {
+                        toastr.error(err);
+                        Loading.hide("#table");
+                    },
+                    success: function (rs) {
+                        Loading.hide("#table");
+                        $("#table").html(rs);
+                    }
+                });
+            };
+            function GetByName(Name) {
+                $.ajax({
+                    url: "/Role/GetByName",
+                    method: "POST",
+                    data: {
+                        Name: Name
+                    },
+                    error: function (err) {
+                        toastr.error(err);
+                    },
+                    success: function (rs) {
+                        if ($("#table tbody tr[data-id='" + Name + "']").length > 0) {
+                            $("#table tbody tr[data-id='" + Name + "']").replaceWith(rs);
+                        }
+                        else {
+                            $("#table tbody").prepend(rs);
+                        }
+                    }
+                });
+            }
+            function Detail(Name) {
+                $.ajax({
+                    url: "/Role/Detail",
+                    method: "POST",
+                    data: {
+                        Name: Name
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    success: function (rs) {
+                        if (Name == null) {
+                            $("#modalDetail .modal-title").html("Thêm mới");
+                        } else {
+                            $("#modalDetail .modal-title").html("Cập nhật");
+                        }
+                        $("#modalDetail .modal-body").html(rs);
+                        $("#modalDetail").modal("show");
+                    }
+                });
+            }
+            DataBind();
+            $("#table").on("click", ".page-item", function () {
+                $(".pagination").children(".page-item").removeClass("active");
+                $(this).addClass("active");
+                DataBind();
+            });
+            $("#btnAdd").click(function () {
+                Detail();
+            });
+            $("#table").on("click", ".btnEdit", function () {
+                Detail($(this).data("id"));
+            });
+            $("#table").on("click", "tr", function () {
+                $(this).attr("style", "background-color:#dee2e6").siblings().removeAttr("style");
+            });
+            $("#modalDetail").on("click", "#btnUpdate", function () {
+                let Name = $("input[name='Name']").val();
+                let Description = $("textarea[name='Description']").val();
+                let Level = $("input[name='Level']").val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Role/Update',
+                    data: {
+                        Name: Name,
+                        Description: Description,
+                        Level: Level
+                    },
+                    success: function (result) {
+                        if (result.success) {
+                            toastr.success(result.message);
+                            GetByName(result.Name);
+                            $("#modalDetail").modal("hide");
+                        }
+                        else {
+                            toastr.error(result.message);
+                        }
+                    }
+                });
+            });
+            $("#table").on("click", ".btnRolePermission", function () {
+                $.ajax({
+                    url: "/Role/Permission",
+                    method: "POST",
+                    data: {
+                        RoleName: $(this).data("id")
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    success: function (rs) {
+                        $("#modalDetail .modal-body").html(rs);
+                        $("#modalDetail").modal("show");
+                    }
+                });
+            });
+            $("#modalDetail").on("change", ".ipCheckRolePermission", function () {
+                $.ajax({
+                    url: "/Role/UpdateRolePermission",
+                    method: "POST",
+                    data: {
+                        RoleName: $(this).data("rolename"),
+                        PermissionName: $(this).data("permissionname"),
+                        Checked: $(this).prop("checked")
+                    },
+                    error: function (ex) {
+                        toastr.error(ex);
+                    },
+                    success: function (rs) {
+                        if (rs.success) {
+                            toastr.success(rs.message);
+                        }
+                        else {
+                            toastr.error(rs.message);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

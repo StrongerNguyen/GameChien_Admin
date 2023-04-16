@@ -1,0 +1,31 @@
+﻿@model FT_Admin.Models.Data.tblContentRecommend
+
+<form method="post" action="/ContentRecommend/Update">
+    @Html.TextBoxFor(t => t.Id, new { @class = "d-none" })
+    <table class="table table-bordered table-hover">
+        <tr class="d-none">
+            <td><label for="Id">Id</label></td>
+            <td>@Html.TextBoxFor(t => t.Id, new { @class = "form-control" })</td>
+        </tr>
+        <tr>
+            <td style="width:100px">
+                <label for="Name">Name</label>
+            </td>
+            <td>
+                <div>
+                    <span class="badge badge-primary namerecommend" style="cursor:pointer">deposit_no</span>
+                    <span class="badge badge-primary namerecommend" style="cursor:pointer">deposit_reporterror</span>
+                    <span class="badge badge-primary namerecommend" style="cursor:pointer">withdraw_no</span>
+                    <span class="badge badge-primary namerecommend" style="cursor:pointer">withdraw_reporterror</span>
+                </div>
+                @Html.TextBoxFor(t => t.Name, new { @class = "form-control", @required = "required" })
+            </td>
+        </tr>
+        <tr>
+            <td><label for="Content">Content</label></td>
+            <td>@Html.TextBoxFor(t => t.Content, new { @class = "form-control", @required = "required" })</td>
+        </tr>
+    </table>
+    <button type="submit" class="btn btn-success d-block mx-auto">@(Model==null?"Thêm mới":"Cập nhật")</button>
+</form>
+

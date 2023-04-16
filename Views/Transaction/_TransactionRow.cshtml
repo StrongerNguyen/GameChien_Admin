@@ -1,0 +1,18 @@
+﻿@model FT_Admin.Models.ViewModel.TransactionViewModel
+<tr data-id='@Model.Id'>
+    <td class="text-center align-middle">@Model.GetBy</td>
+    <td class="text-center align-middle">@Model.BankName</td>
+    <td class="text-center align-middle">@Model.TransactionDate</td>
+    <td class="text-center align-middle">@Model.TransactionTime</td>
+    <td class="align-middle" style="overflow-wrap:anywhere">@Model.Description</td>
+    <td class="text-center align-middle"><b>@Model.PhoneNumber</b></td>
+    <td class="text-center align-middle">
+        <b class="@(Model.CD == "-" ? "text-danger" : (Model.CD == "+" ? "text-success" : ""))">@(string.IsNullOrEmpty(Model.CD)? Model.Amount.ToString():$"{Model.CD}{Model.Amount.ToString("N0") ?? ""}")</b>
+    </td>
+    <td class="text-center align-middle">
+        @if (Model.DepositId != null)
+        {
+            <b class="text-success">Đã cộng điểm</b>
+        }
+    </td>
+</tr>

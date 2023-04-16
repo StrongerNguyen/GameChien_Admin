@@ -1,0 +1,85 @@
+﻿@using FT_Admin.Models.ViewModel
+@model List<WithdrawViewModel>
+<div class="flex-grow-1 overflow-auto">
+    <table class="table table-hover table-sm table-responsive-sm table-bordered m-0">
+        <thead>
+            <tr>
+                <th width="100px" style="text-align: center">Thời gian</th>
+                <th width="100px" style="text-align: center">AccountName</th>
+                <th width="150px" style="text-align: center">PhoneNumber</th>
+                <th width="100px" style="text-align: center">BankName</th>
+                <th width="100px" style="text-align: center">BankAccountNumber</th>
+                <th width="150px" style="text-align: center">BankFullName</th>
+                <th width="100px" style="text-align: center">Amount</th>
+                <th width="100px" style="text-align: center">Status</th>
+                <th width="150px" style="text-align: center">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr data-id='@item.Id'>
+                    <td style='text-align:center;vertical-align:middle'>@item.CreatedTime.ToString("dd/MM HH:mm")</td>
+                    <td style='text-align:center;vertical-align:middle'>@item.AccountName </td>
+                    <td style='text-align:center;vertical-align:middle'>@item.PhoneNumber</td>
+                    <td style='text-align:center;vertical-align:middle'>@item.BankName</td>
+                    <td style='text-align:center;vertical-align:middle'>@item.BankAccountNumber</td>
+                    <td style='text-align:center;vertical-align:middle'>@item.BankFullName</td>
+                    <td style='text-align:center;vertical-align:middle'>@item.Amount.ToString("N0")</td>
+                    <td style='text-align:center;vertical-align:middle'>@item.Status</td>
+                    <td style='text-align:center;vertical-align:middle'>
+                        @if (item.Status == null)
+                        {
+                            <button class='btn btn-sm p-2 btn-primary' data-id='@item.Id'><b>Xử lý</b></button>
+                        }
+                        else
+                        {
+                            <b class='@(item.Status.Value?"text-success":"text-danger")'>@(item.Status.Value?"YES":"NO")</b>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="d-flex align-items-center justify-content-center" style="background-color:#f2f2f2">
+    <nav aria-label="...">
+        <ul class="pagination justify-content-center flex-wrap m-1">
+            @{
+                int maxPage = (int)ViewBag.maxPage;
+
+                int curPage = (int)ViewBag.curPage;
+                if (curPage > 3)
+                {
+                    <li class='page-item' data-pagenum='1'><a class='page-link' href='#'>First - 1</a></li>
+                }
+                if (curPage > 4)
+                {
+                    <li class='page-item' data-pagenum='@(curPage-1)'><a class='page-link' href='#'>Prev</a></li>
+                }
+                for (var i = 1; i <= maxPage; i++)
+                {
+                    if (i == curPage)
+                    {
+                        <li class='page-item active' data-pagenum='@i'><a class='page-link' href='#'>@i</a></li>
+                    }
+                    else
+                    {
+                        if (i > curPage - 3 && i < curPage + 3)
+                        {
+                            <li class='page-item' data-pagenum='@i'><a class='page-link' href='#'>@i</a></li>
+                        }
+                    }
+                }
+                if (curPage < maxPage - 3)
+                {
+                    <li class='page-item' data-pagenum='@(curPage+1)'><a class='page-link' href='#'>Next</a></li>
+                }
+                if (curPage < maxPage - 2)
+                {
+                    <li class='page-item' data-pagenum='@maxPage'><a class='page-link' href='#'>Last - @maxPage</a></li>
+                }
+            }
+        </ul>
+    </nav>
+</div>

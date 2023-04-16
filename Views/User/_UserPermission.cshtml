@@ -1,0 +1,26 @@
+﻿@using FT_Admin.Models.Data
+@using FT_Admin.Models.ViewModel
+@model List<PermissionViewModel>
+@{
+    List<UserPermissionViewModel> userPermission = (List<UserPermissionViewModel>)ViewBag.UserPermission;
+    UserViewModel user = (UserViewModel)ViewBag.User;
+}
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <td style="width:180px">Tên quyền</td>
+            <td>Mô tả quyền</td>
+            <td style="width:80px">Chọn</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var per in Model)
+        {
+            <tr>
+                <td>@per.Name</td>
+                <td>@per.Description</td>
+                <td><input type="checkbox" class="ipCheckUserPermission" data-userid="@user.Id" data-permissionname="@per.Name" @(userPermission.Count(t => t.PermissionName.Equals(per.Name)) > 0 ? "checked" : "") /></td>
+            </tr>
+        }
+    </tbody>
+</table>

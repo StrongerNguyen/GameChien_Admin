@@ -1,0 +1,125 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.12.0/fh-3.2.3/sc-2.0.6/sp-2.0.1/sl-1.4.0/datatables.min.css" />
+
+
+
+</head>
+<body>
+    <div class="d-flex flex-column p-4" style="max-height:100vh">
+        <table class="table table-hover table-sm table-responsive-sm table-bordered display flex-grow-1 overflow-auto" style="max-height:100px" id="tbl">
+            <thead>
+                <tr>
+                    <th width="150px" style="text-align: center">Ngày đăng ký</th>
+                    <th width="100px" style="text-align: center">GameID</th>
+                    <th width="150px" style="text-align: center">Số điện thoại</th>
+                    <th width="100px" style="text-align: center">Ngân hàng</th>
+                    <th width="100px" style="text-align: center">Số tài khoản</th>
+                    <th width="150px" style="text-align: center">Tên chủ tài khoản</th>
+                    <th width="150px" style="text-align: center">Ghi chú</th>
+                    <th width="150px" style="text-align: center">Kích hoạt</th>
+                    <th width="150px" style="text-align: center">Xử lý</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.12.0/fh-3.2.3/sc-2.0.6/sp-2.0.1/sl-1.4.0/datatables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#tbl").DataTable({
+            serverSide: true,
+            processing: true,
+            searchable: true,
+            ordering: true,
+            fixedHeader: true,
+            pageLength: 100,
+            deferRender: true,
+            scroller: true,
+            scrollY: 600,
+            select: true,
+            rowId: "Id",
+            search: {
+                return: true,
+            },
+            language: {
+                "decimal": "",
+                "emptyTable": "No data available in table",
+                "info": "Hiển thị _START_ đến _END_ của _TOTAL_ bản ghi",
+                "infoEmpty": "Không có bản ghi nào",
+                "infoFiltered": "(filtered from _MAX_ total bản ghi)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Show _MENU_ entries",
+                "loadingRecords": "Đang tải...",
+                "processing": "",
+                "search": "Tìm kiếm:",
+                "zeroRecords": "No matching records found",
+                "paginate": {
+                    "first": "First",
+                    "last": "Last",
+                    "next": "Next",
+                    "previous": "Previous"
+                },
+                "aria": {
+                    "sortAscending": ": activate to sort column ascending",
+                    "sortDescending": ": activate to sort column descending"
+                }
+            },
+            ajax: {
+                url: "/Request/GetData",
+                method: "POST",
+            },
+            columns: [
+                {
+                    data: 'CreatedTime',
+                    render: function (data, type, row) {
+                        return data;
+                    }
+                },
+                {
+                    data: "GameId"
+                },
+                {
+                    data: "PhoneNumber"
+                },
+                {
+                    data: "BankName"
+                },
+                {
+                    data: "BankAccountNumber"
+                },
+                {
+                    data: "BankFullName"
+                },
+                {
+                    data: "Note"
+                },
+                {
+                    data: "isActive",
+                    render: function (data, type, row) {
+                        return "<div style='text-align:center'><input type='checkbox' " + (data == true ? "checked" : "") + " /></div>";
+                    }
+                },
+                {
+                    data: "Id",
+                    render: function (data, type, row) {
+                        return "<button class='btnEdit btn btn-primary btn-sm' data-id='" + data + "'><i class='fa fa-pencil-square-o' aria-hidden='true'></i> Edit</button>";
+                    }
+                },
+            ],
+        });
+    });
+</script>
